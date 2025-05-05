@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Carte interactive avec Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+    var map = L.map('map').setView([48.8566, 2.3522], 5); // Paris centré
+L.marker([48.8566, 2.3522]).addTo(map);
+
+// Déclaration des icônes
+var attentionIcon = L.icon({
+    iconUrl: 'attention.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
+var dangerIcon = L.icon({
+    iconUrl: 'danger.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+});
+
+// Fond de carte
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+// Fonction utilitaire pour déterminer la catégorie
+function getCountryCategory(code) {
+    if (['CAN', 'CHN', 'KOR', 'GRC', 'IDN', 'ITA', 'MYS', 'PRT', 'TUN', 'USA'].includes(code)) {
+        return { color: 'orange', icon: attentionIcon };
+    }
+    else if (['AUS', 'ARG', 'BRA', 'KHM', 'CHL', 'COL', 'FIN', 'MUS', 'IND', 'JPN', 'LAO', 'NLD', 'QAT', 'SGP', 'LKA', 'THA'].includes(code)) {
+        return { color: 'red', icon: dangerIcon };
+    }
+    else {
+        return { color: 'green', icon: null };
+    }
+}
+
+// Fonction de style
+function style(feature) {
+    var code = feature.properties.shapeGroup;
+    var category = getCountryCategory(code);
+
+    return {
+        fillColor: category.color,
+        weight: 0,
+        opacity: 0,
+        color: 'transparent',
+        fillOpacity: 0.7
+    };
+}
+
+// Charger le fichier GeoJSON complet
+fetch('carte_interractive2.geojson')
+    .then(response => response.json())
+    .then(data => {
+        L.geoJSON(data, {
+            style: style,
+            onEachFeature: function (feature, layer) {
+                var code = feature.properties.shapeGroup;
+                var category = getCountryCategory(code);
+
+                if (category.icon) {
+                    console.log('Ajout icône pour :', code);
+
+                    var latlng = null;
+
+                    if (layer.getBounds().isValid()) {
+                        latlng = layer.getBounds().getCenter();
+                    } else if (feature.geometry.type === 'Polygon') {
+                        var coords = feature.geometry.coordinates[0][0];
+                        latlng = L.latLng(coords[1], coords[0]);
+                    } else if (feature.geometry.type === 'MultiPolygon') {
+                        var coords = feature.geometry.coordinates[0][0][0];
+                        latlng = L.latLng(coords[1], coords[0]);
+                    }
+                    
+                    if (latlng) {
+                        L.marker(latlng, { icon: category.icon }).addTo(map);
+                    }
+                    
+                }
+            }
+        }).addTo(map);
+    })
+    .catch(error => console.error('Erreur de chargement GeoJSON:', error));
+
+
+
+
+
+        // Ajouter les frontières du Royaume-Uni
+        fetch('GBR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières de l'Argentine
+        fetch('ARG.geojson') // Remplace "ARG.geojson" par le chemin relatif vers ton fichier GeoJSON 
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+        // Ajouter les frontières du Brésil
+        fetch('BRA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières du Cambodge
+        fetch('CAM.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+        // Ajouter les frontières du Canada
+        fetch('CAN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières du Chili
+        fetch('CHI.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+        // Ajouter les frontières de la Chine
+        fetch('CHN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières de la Colombie
+        fetch('COL.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de la Finlande
+          fetch('FIN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières de la Grèce
+        fetch('GRE.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de la Guadeloupe
+          fetch('GUA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières de l'Indonésie'
+        fetch('IDN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de l'Italie'
+          fetch('ITA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières du Japon
+        fetch('JAP.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de la Corée du Sud
+          fetch('KOR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières du Laos
+        fetch('LAO.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de la Malaisie
+          fetch('MAL.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières du Maroc
+        fetch('MAR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+          // Ajouter les frontières de l'île Maurice
+          fetch('MAU.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+          .then(response => response.json())
+          .then(data => {
+              L.geoJSON(data, { style: style }).addTo(map);
+          })
+          .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+            // Ajouter les frontières de la Martinique
+        fetch('MTQ.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+           // Ajouter les frontières des Pays-Bas
+           fetch('NET.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+           .then(response => response.json())
+           .then(data => {
+               L.geoJSON(data, { style: style }).addTo(map);
+           })
+           .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+              // Ajouter les frontières de la Nouvelle-Zélande
+        fetch('NZL.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+           // Ajouter les frontières du Portugal
+           fetch('POR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+           .then(response => response.json())
+           .then(data => {
+               L.geoJSON(data, { style: style }).addTo(map);
+           })
+           .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+              // Ajouter les frontières du Qatar
+        fetch('QAT.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+           // Ajouter les frontières de Singapoure
+           fetch('SIN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+           .then(response => response.json())
+           .then(data => {
+               L.geoJSON(data, { style: style }).addTo(map);
+           })
+           .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+             // Ajouter les frontières du Sri Lanka
+             fetch('SRI.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+             .then(response => response.json())
+             .then(data => {
+                 L.geoJSON(data, { style: style }).addTo(map);
+             })
+             .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+               // Ajouter les frontières de la Thaïlande
+           fetch('THA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+           .then(response => response.json())
+           .then(data => {
+               L.geoJSON(data, { style: style }).addTo(map);
+           })
+           .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+             // Ajouter les frontières de la Tunisie
+             fetch('TUN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+             .then(response => response.json())
+             .then(data => {
+                 L.geoJSON(data, { style: style }).addTo(map);
+             })
+             .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+               // Ajouter les frontières des USA
+           fetch('USA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON du Royaume-Uni
+           .then(response => response.json())
+           .then(data => {
+               L.geoJSON(data, { style: style }).addTo(map);
+           })
+           .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
+
+        // Ajouter les frontières de l'Autriche
+        fetch('AUT.geojson') // Remplace "AUT.geojson" par le chemin relatif vers ton fichier GeoJSON de l'Autriche
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour l\'Autriche:', error));
+
+        // Ajouter les frontières de l'Espagne
+        fetch('ESP.geojson') // Remplace "ESP.geojson" par le chemin relatif vers ton fichier GeoJSON de l'Espagne
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, { style: style }).addTo(map);
+            })
+            .catch(error => console.error('Erreur de chargement GeoJSON pour l\'Espagne:', error));
+
+            // Ajouter les frontières de l'Australie
+        fetch('AUS.geojson') // Remplace "ESP.geojson" par le chemin relatif vers ton fichier GeoJSON de l'Espagne
+        .then(response => response.json())
+        .then(data => {
+            L.geoJSON(data, { style: style }).addTo(map);
+        })
+        .catch(error => console.error('Erreur de chargement GeoJSON pour l\'Australie:', error));
+
+        // Créer un contrôle de légende
+var legend = L.control({ position: 'bottomright' });
+
+legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend'),
+        colors = ['green', 'orange', 'red'],
+        labels = ['Voyagez sans risque', 'Certaines précautions sont à prendre', 'Vapotage interdit, n\'emmenez pas votre matériel avec vous'];
+
+    // Boucle pour générer les carrés de couleur + texte
+    for (var i = 0; i < colors.length; i++) {
+        div.innerHTML +=
+            '<i style="background:' + colors[i] + '; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ' +
+            labels[i] + '<br>';
+    }
+
+    return div;
+};
+
+legend.addTo(map);
+
+    </script>
+</body>
+</html>
