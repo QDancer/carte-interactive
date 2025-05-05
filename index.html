@@ -126,7 +126,7 @@
       'IND.geojson','IDN.geojson','ITA.geojson','JPN.geojson',
       'LAO.geojson','MYS.geojson','NZL.geojson','NLD.geojson',
       'PRT.geojson','QAT.geojson','SGP.geojson','LKA.geojson',
-      'THA.geojson','TUN.geojson','USA.geojson',
+      'THA.geojson','TUN.geojson','USA.geojson','AUT.geojson',
       'GLP.geojson','MAR.geojson','MTQ.geojson','GBR.geojson','ESP.geojson'
     ];
 
@@ -602,12 +602,16 @@ fetch('carte_interractive2.geojson')
            .catch(error => console.error('Erreur de chargement GeoJSON pour les USA:', error));
 
         // Ajouter les frontières de l'Autriche
-        fetch('AUT.geojson') // Remplace "AUT.geojson" par le chemin relatif vers ton fichier GeoJSON 
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: style }).addTo(map);
-            })
-            .catch(error => console.error('Erreur de chargement GeoJSON pour l\'Autriche:', error));
+        fetch('AUT.geojson')
+  .then(res => res.text())
+  .then(txt => {
+    console.log('Contenu brut chargé pour AUT.geojson :\n', txt.substr(0, 200));
+    return JSON.parse(txt);
+  })
+  .then(data => {
+    L.geoJSON(data, { style: style }).addTo(map);
+  })
+  .catch(err => console.error('Erreur de chargement GeoJSON pour Autriche:', err));
 
         // Ajouter les frontières de l'Espagne
         fetch('ESP.geojson')
