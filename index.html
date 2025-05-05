@@ -3,17 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>Carte interactive avec Leaflet</title>
+
   <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
   />
-  <style>
-    /* Pleine hauteur pour la carte */
-    html, body { height: 100%; margin: 0; padding: 0; }
-    #map       { height: 98%; }
 
-    /* Style de tooltip personnalisé */
+  <!-- Fullscreen CSS -->
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+  />
+
+  <style>
+    html, body { height: 100%; margin: 0; padding: 0; }
+    #map       { height: 100%; }
+
     .custom-tooltip {
       background: rgba(0,0,0,0.8);
       color: white;
@@ -25,7 +31,6 @@
       border-top-color: rgba(0,0,0,0.8);
     }
 
-    /* Légende */
     .info.legend {
       background: white;
       padding: 6px;
@@ -34,87 +39,77 @@
       border-radius: 5px;
     }
 
-    /* donne un liseré blanc à l’icône pour qu’elle ressorte sur fond rouge */
-.danger-marker-icon {
-  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
-}
+    .danger-marker-icon,
+    .attention-marker-icon {
+      filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
+    }
 
-/* liseré blanc autour de l’icône attention */
-.attention-marker-icon {
-  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
-}
-
-.company-logo {
-  width: 120px;               
-  height: auto;
-  padding: 5px;               
-  background: rgba(200,200,200,0.5);
-  border: 3px solid grey;     
-  border-radius: 6px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  cursor: pointer;
-  /* margin-bottom inutile ici, on passe par bottom dans la règle suivante */
-}
-
-/* Règle pour remonter le logo */
-.leaflet-control-bottomleft .company-logo {
-  position: relative;
-  bottom: 30px;       /* remonte le logo de 30 px */
-}  /* ← Ne pas oublier ce `}` qui ferme la règle */
-
-</style>
-
+    .company-logo {
+      width: 120px;
+      padding: 5px;
+      background: rgba(200,200,200,0.5);
+      border: 3px solid grey;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      cursor: pointer;
+    }
+    .leaflet-control-bottomleft .company-logo {
+      position: relative;
+      bottom: 30px;
+    }
+  </style>
 </head>
 <body>
   <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <!-- Fullscreen JS -->
+  <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 
-  <!-- Ton code JavaScript -->
   <script>
     // 1) Initialisation de la carte
     var map = L.map('map').setView([20, 0], 2);
 
-    // 2) Fond de carte
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png')
-     .addTo(map);
+    // 2) Choix des fonds de carte
+    var baseMaps = {
+      "Light": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
+      "Dark":  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
+    };
+    baseMaps.Light.addTo(map);
 
-    // 3) Déclaration des icônes
+    // 3) Préparation des overlays
+    var overlays = {};
+
+    // 4) Déclaration des icônes
     var attentionIcon = L.icon({
-  iconUrl: 'attention.png',
-  iconSize:  [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor:[0, -32],
-  className: 'attention-marker-icon'    // ← on déclare la classe
-});
+      iconUrl: 'attention.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+      className: 'attention-marker-icon'
+    });
     var dangerIcon = L.icon({
-  iconUrl: 'danger.png',
-  iconSize:  [32, 32],
-  iconAnchor:[16, 32],
-  popupAnchor:[0, -32],
-  className: 'danger-marker-icon'    // ← on ajoute cette classe
-});
+      iconUrl: 'danger.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+      className: 'danger-marker-icon'
+    });
 
-
-    // 4) Fonction utilitaire pour couleur + icône
+    // 5) Fonction utilitaire pour catégorie
     function getCountryCategory(code) {
-      if (['CAN','CHN','KOR','GRC','IDN','ITA','MYS','PRT','TUN','USA']
-          .includes(code)) {
+      if (['CAN','CHN','KOR','GRC','IDN','ITA','MYS','PRT','TUN','USA'].includes(code))
         return { color:'orange', icon:attentionIcon };
-      }
-      if (['AUS','ARG','BRA','KHM','CHL','COL','FIN','MUS',
-           'IND','JPN','LAO','NLD','QAT','SGP','LKA','THA']
-          .includes(code)) {
+      if (['AUS','ARG','BRA','KHM','CHL','COL','FIN','MUS','IND','JPN','LAO','NLD','QAT','SGP','LKA','THA'].includes(code))
         return { color:'red', icon:dangerIcon };
-      }
       return { color:'green', icon:null };
     }
 
-    // 5) Style des GeoJSON
+    // 6) Style des GeoJSON
     function style(feature) {
       var code = feature.properties.shapeGroup || feature.properties.GID_0;
-      var cat  = getCountryCategory(code);
+      var cat = getCountryCategory(code);
       return {
         fillColor:   cat.color,
         color:       'black',
@@ -123,7 +118,7 @@
       };
     }
 
-    // 6) Liste des fichiers GeoJSON ADM0
+    // 7) Chargement des GeoJSON ADM0
     var files = [
       'AUS.geojson','ARG.geojson','BRA.geojson','KHM.geojson',
       'CAN.geojson','CHL.geojson','CHN.geojson','COL.geojson',
@@ -131,21 +126,26 @@
       'IND.geojson','IDN.geojson','ITA.geojson','JPN.geojson',
       'LAO.geojson','MYS.geojson','NZL.geojson','NLD.geojson',
       'PRT.geojson','QAT.geojson','SGP.geojson','LKA.geojson',
-      'THA.geojson','TUN.geojson','USA.geojson', 'ESP.geojson',
-      'GLP.geojson','MAR.geojson','MTQ.geojson', 'GBR.geojson',
+      'THA.geojson','TUN.geojson','USA.geojson',
+      'GLP.geojson','MAR.geojson','MTQ.geojson','GBR.geojson','ESP.geojson'
     ];
 
-    // 7) Chargement et affichage de chaque GeoJSON
-    files.forEach(function(path) {
+    files.forEach(function(path){
       fetch(path)
         .then(res => res.json())
         .then(data => {
-          L.geoJSON(data, { style: style }).addTo(map);
+          var layer = L.geoJSON(data, { style: style }).addTo(map);
+          overlays[path.replace('.geojson','').toUpperCase()] = layer;
         })
-        .catch(err => console.error(`Erreur sur ${path}:`, err));
+        .catch(err => console.error('Erreur sur', path, err));
     });
 
-    // 8) Coordonnées fixes pour les icônes
+    // 8) Contrôles Leaflet
+    L.control.layers(baseMaps, overlays, { collapsed:false }).addTo(map);
+    L.control.scale({ position:'bottomleft', imperial:false }).addTo(map);
+    L.control.fullscreen({ position:'topright' }).addTo(map);
+
+    // 9) Pose des marqueurs + tooltips
     var countryIcons = {
       CAN:[45.4215,-75.6972],CHN:[39.9042,116.4074],KOR:[37.5665,126.9780],
       GRC:[37.9838,23.7275],IDN:[-6.2088,106.8456],ITA:[41.9028,12.4964],
@@ -159,7 +159,6 @@
       GLP:[16.2650,-61.5500],MAR:[33.5731,-7.5898],MTQ:[14.6415,-61.0242]
     };
 
-    // 9) Messages personnalisés
     var countryMessages = {
       CAN:"<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités de l'endroit où vous vous rendez.</li></ul>",CHN:"<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite</li></ul>",KOR:"<h3>Corée du Sud</h3> <ul><li>Le vapotage est interdit dans les lieux publics en dehors des zones fumeuses</li></ul>",GRC:"<h3>Grèce</h3> <ul><li>Taxation des e-liquides</li> <li>Apportez votre matériel avec vous</li></ul>",
       IDN:"<h3>Indonésie</h3> <ul><li>Les vape shops se trouvent principalement à Bali</li> <li>Les e-liquides sont fortement taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",ITA:"<h3>Italie</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",MYS:"<h3>Malaisie</h3> <ul><li>Forte taxation des e-liquides</li> <li>Vente des e-liquides nicotinés réservée aux pharmacies agréées</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",PRT:"<h3>Portugal</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
@@ -171,57 +170,49 @@
       GLP:"Info Guadeloupe",MAR:"Info Maroc",MTQ:"Info Martinique"
     };
 
-    // 10) Pose des marqueurs + tooltips
-    Object.keys(countryIcons).forEach(function(code) {
+    Object.keys(countryIcons).forEach(function(code){
       var coords = countryIcons[code],
           cat    = getCountryCategory(code);
-      if (!cat.icon) return;
-      var m   = L.marker(coords, { icon: cat.icon }).addTo(map),
-          txt = countryMessages[code] || "Pas de message défini";
-      m.bindTooltip(txt, {
-        permanent: false,
-        direction: 'top',
-        offset: [0,-10],
-        className: 'custom-tooltip'
-      });
+      if(!cat.icon) return;
+      L.marker(coords, { icon: cat.icon })
+        .addTo(map)
+        .bindTooltip(countryMessages[code] || "Pas d'info", {
+          direction:'top', offset:[0,-10],
+          className:'custom-tooltip', interactive:true, sticky:true
+        });
     });
 
-    // 11) Ajout d'une légende
-    var legend = L.control({ position: 'bottomright' });
-    legend.onAdd = function() {
+    // 10) Légende
+    var legend = L.control({ position:'bottomright' });
+    legend.onAdd = function(){
       var div = L.DomUtil.create('div','info legend'),
-          cols = ['green','orange','red'],
-          labs = ['Voyagez tranquilles','Des précautions sont à prévoir','Pays déconseillé'];
-      for (var i=0;i<cols.length;i++){
+          cols=['green','orange','red'],
+          labs=['Voyagez tranquilles','Précautions','Pays déconseillé'];
+      cols.forEach(function(c,i){
         div.innerHTML +=
-          '<i style="background:'+cols[i]+';width:18px;height:18px;display:inline-block;margin-right:8px"></i>'
+          '<i style="background:'+c+';width:18px;height:18px;display:inline-block;margin-right:8px"></i>'
           + labs[i] + '<br>';
-      }
+      });
       return div;
     };
     legend.addTo(map);
 
-    // 1) Définition d’un contrôle personnalisé pour le logo
-var LogoControl = L.Control.extend({
-  options: { position: 'bottomleft' },  // possible: 'topleft', 'topright', 'bottomright'
-
-  onAdd: function (map) {
-    // Crée un élément <img>
-    var img = L.DomUtil.create('img', 'company-logo');
-    img.src = 'logo.png';             // chemin vers ton logo
-    img.alt = 'Logo de mon entreprise';
-    // ouvrir un lien au clic
-    img.onclick = function () {
-      window.open('https://fr.vapingpost.com/', '_blank');
-    };
-    return img;
-  }
-});
-
-// 2) Ajout du contrôle à la carte
-map.addControl(new LogoControl());
-
+    // 11) Logo entreprise
+    var LogoControl = L.Control.extend({
+      options:{position:'bottomleft'},
+      onAdd:function(){
+        var img=L.DomUtil.create('img','company-logo');
+        img.src='logo.png'; img.alt='Logo';
+        img.onclick=()=>window.open('https://fr.vapingpost.com/','_blank');
+        return img;
+      }
+    });
+    map.addControl(new LogoControl());
   </script>
+</body>
+</html>
+
+
     <style>
         html, body {
             height: 100%;
@@ -429,10 +420,10 @@ fetch('carte_interractive2.geojson')
         .catch(error => console.error('Erreur de chargement GeoJSON pour la Grèce:', error));
 
           // Ajouter les frontières de la Guadeloupe
-          fetch('GUA.geojson')
+          fetch('GLP.geojson')
   .then(res => res.text())
   .then(txt => {
-    console.log('Contenu brut chargé pour GUA.geojson :\n', txt.substr(0, 200));
+    console.log('Contenu brut chargé pour GLP.geojson :\n', txt.substr(0, 200));
     return JSON.parse(txt);
   })
   .then(data => {
@@ -562,10 +553,10 @@ fetch('carte_interractive2.geojson')
         .catch(error => console.error('Erreur de chargement GeoJSON pour le Qatar:', error));
 
            // Ajouter les frontières de Singapoure
-           fetch('SIN.geojson')
+           fetch('SGP.geojson')
   .then(res => res.text())
   .then(txt => {
-    console.log('Contenu brut chargé pour SIN.geojson :\n', txt.substr(0, 200));
+    console.log('Contenu brut chargé pour SGP.geojson :\n', txt.substr(0, 200));
     return JSON.parse(txt);
   })
   .then(data => {
