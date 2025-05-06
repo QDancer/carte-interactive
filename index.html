@@ -67,6 +67,12 @@ body.is-mobile .leaflet-control-scale {
   font-size: calc(2.5vw + 6px);
 }
 
+    body.is-mobile .custom-tooltip {
+  font-size: 1.2em;
+  padding: 8px 12px;
+  line-height: 1.5;
+}
+
 
 #legend-content {
   margin-top: 4px;
@@ -154,6 +160,15 @@ body.is-mobile .company-logo {
   margin-bottom: 4px;
   border-radius: 4px;
 }
+
+    body.is-mobile .leaflet-control-container .leaflet-control-fullscreen {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 10px;
+  z-index: 1000;
+}
+
 
 
   </style>
