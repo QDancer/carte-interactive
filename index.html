@@ -204,7 +204,7 @@ var map = L.map('map').setView(mapCenter, mapZoom);
     });
 
     function getCountryCategory(code) {
-      if (['CAN','CHN','KOR','GRC','IDN','ITA','MYS','PRT','TUN','USA'].includes(code))
+      if (['BEL','CAN','CHN','KOR','GRC','IDN','ITA','MYS','PRT','TUN','USA'].includes(code))
         return { color:'orange', icon:attentionIcon };
       if (['AUS','ARG','BRA','KHM','CHL','COL','FIN','MUS','IND','JPN','LAO','NLD','QAT','SGP','LKA','THA'].includes(code))
         return { color:'red', icon:dangerIcon };
@@ -262,24 +262,27 @@ var map = L.map('map').setView(mapCenter, mapZoom);
     L.control.fullscreen({ position:'topleft' }).addTo(map);
 
     var countryIcons = {
-      CAN:[45.4215,-75.6972],CHN:[39.9042,116.4074],KOR:[37.5665,126.9780],
-      GRC:[37.9838,23.7275],IDN:[-6.2088,106.8456],ITA:[41.9028,12.4964],
-      MYS:[3.1390,101.6869],PRT:[38.7169,-9.1399],TUN:[36.8065,10.1815],
-      USA:[38.9072,-77.0369],AUS:[-35.2809,149.1300],ARG:[-34.6037,-58.3816],
-      BRA:[-15.7801,-47.9292],KHM:[11.5564,104.9282],CHL:[-33.4489,-70.6693],
-      COL:[4.7110,-74.0721],FIN:[60.1695,24.9354],MUS:[-20.1654,57.4896],
-      IND:[28.6139,77.2090],JPN:[35.6895,139.6917],LAO:[17.9757,102.6331],
-      NLD:[52.3676,4.9041],QAT:[25.2769,51.5200],SGP:[1.3521,103.8198],
-      LKA:[6.9271,79.8612],THA:[13.7563,100.5018],NZL:[-41.2865,174.7762],
-      GLP:[16.2650,-61.5500],MAR:[33.5731,-7.5898],MTQ:[14.6415,-61.0242]
-    };
+  CAN:[45.4215,-75.6972], CHN:[39.9042,116.4074], KOR:[37.5665,126.9780],
+  GRC:[37.9838,23.7275], IDN:[-6.2088,106.8456], ITA:[41.9028,12.4964],
+  MYS:[3.1390,101.6869], PRT:[38.7169,-9.1399], TUN:[36.8065,10.1815],
+  USA:[38.9072,-77.0369], AUS:[-35.2809,149.1300], ARG:[-34.6037,-58.3816],
+  BRA:[-15.7801,-47.9292], KHM:[11.5564,104.9282], CHL:[-33.4489,-70.6693],
+  COL:[4.7110,-74.0721], FIN:[60.1695,24.9354], MUS:[-20.1654,57.4896],
+  IND:[28.6139,77.2090], JPN:[35.6895,139.6917], LAO:[17.9757,102.6331],
+  NLD:[52.3676,4.9041], QAT:[25.2769,51.5200], SGP:[1.3521,103.8198],
+  LKA:[6.9271,79.8612], THA:[13.7563,100.5018], NZL:[-41.2865,174.7762],
+  GLP:[16.2650,-61.5500], MAR:[33.5731,-7.5898], MTQ:[14.6415,-61.0242],
+  BEL:[50.8503, 4.3517],  
+  
+};
+
 
     var iso3to2 = {
       CAN:'ca', CHN:'cn', KOR:'kr', GRC:'gr', IDN:'id', ITA:'it', MYS:'my', 
       PRT:'pt', TUN:'tn', USA:'us', AUS:'au', ARG:'ar', BRA:'br', KHM:'kh', 
       CHL:'cl', COL:'co', FIN:'fi', MUS:'mu', IND:'in', JPN:'jp', LAO:'la', 
       NLD:'nl', QAT:'qa', SGP:'sg', LKA:'lk', THA:'th', NZL:'nz', GLP:'gp', 
-      MAR:'ma', MTQ:'mq', ESP:'es', GBR:'gb'
+      MAR:'ma', MTQ:'mq', ESP:'es', GBR:'gb', BEL = 'be', 
     };
 
     var countryMessages = {
