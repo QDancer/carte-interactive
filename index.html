@@ -5,16 +5,8 @@
   <title>Carte interactive avec Leaflet</title>
 
   <!-- Leaflet CSS -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-  />
-
-  <!-- Fullscreen CSS -->
-  <link
-    rel="stylesheet"
-    href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
-  />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css" />
 
   <style>
     html, body { height: 100%; margin: 0; padding: 0; }
@@ -27,9 +19,7 @@
       border-radius: 4px;
       font-size: 0.9em;
     }
-    .custom-tooltip::before {
-      border-top-color: rgba(0,0,0,0.8);
-    }
+    .custom-tooltip::before { border-top-color: rgba(0,0,0,0.8); }
 
     .info.legend {
       background: white;
@@ -39,8 +29,7 @@
       border-radius: 5px;
     }
 
-    .danger-marker-icon,
-    .attention-marker-icon {
+    .danger-marker-icon, .attention-marker-icon {
       filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
     }
 
@@ -53,9 +42,24 @@
       box-shadow: 0 0 5px rgba(0,0,0,0.3);
       cursor: pointer;
     }
+
+    .flag-icon {
+  vertical-align: middle;
+  margin-right: 6px;
+  width: 24px;
+  height: auto;
+}
+
     .leaflet-control-bottomleft .company-logo {
       position: relative;
       bottom: 30px;
+    }
+
+    .leaflet-popup-content img.flag-icon {
+      width: 32px;
+      height: 24px;
+      margin-right: 5px;
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -64,40 +68,42 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <!-- Fullscreen JS -->
   <script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
 
   <script>
-    // 1) Initialisation de la carte
-    var map = L.map('map').setView([20, 0], 2);
+    // Détecter mobile
+var isMobile = window.innerWidth < 768;
 
-    // 2) Choix des fonds de carte
+// Centrage et zoom selon device
+var mapCenter = isMobile ? [50, 10] : [20, 0];
+var mapZoom   = isMobile ? 4 : 2;
+
+var map = L.map('map').setView(mapCenter, mapZoom);
+
+
     var baseMaps = {
       "Light": L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'),
       "Dark":  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png')
     };
     baseMaps.Light.addTo(map);
 
-    // 3) Préparation des overlays
     var overlays = {};
 
-    // 4) Déclaration des icônes
     var attentionIcon = L.icon({
       iconUrl: 'attention.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
+      iconSize: [32,32],
+      iconAnchor: [16,32],
+      popupAnchor: [0,-32],
       className: 'attention-marker-icon'
     });
     var dangerIcon = L.icon({
       iconUrl: 'danger.png',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-      popupAnchor: [0, -32],
+      iconSize: [32,32],
+      iconAnchor: [16,32],
+      popupAnchor: [0,-32],
       className: 'danger-marker-icon'
     });
 
-    // 5) Fonction utilitaire pour catégorie
     function getCountryCategory(code) {
       if (['CAN','CHN','KOR','GRC','IDN','ITA','MYS','PRT','TUN','USA'].includes(code))
         return { color:'orange', icon:attentionIcon };
@@ -106,46 +112,36 @@
       return { color:'green', icon:null };
     }
 
-    // 6) Style des GeoJSON
     function style(feature) {
       var code = feature.properties.shapeGroup || feature.properties.GID_0;
-      var cat = getCountryCategory(code);
+      var cat  = getCountryCategory(code);
       return {
-        fillColor:   cat.color,
-        color:       'black',
-        weight:      1,
+        fillColor: cat.color,
+        color: 'black',
+        weight: 1,
         fillOpacity: 0.7
       };
     }
 
-    // 7) Chargement des GeoJSON ADM0
-    var files = [
-      'AUS.geojson','ARG.geojson','BRA.geojson','KHM.geojson',
-      'CAN.geojson','CHL.geojson','CHN.geojson','COL.geojson',
-      'KOR.geojson','FIN.geojson','GRC.geojson','MUS.geojson',
-      'IND.geojson','IDN.geojson','ITA.geojson','JPN.geojson',
-      'LAO.geojson','MYS.geojson','NZL.geojson','NLD.geojson',
-      'PRT.geojson','QAT.geojson','SGP.geojson','LKA.geojson',
-      'THA.geojson','TUN.geojson','USA.geojson','AUT.geojson',
-      'GLP.geojson','MAR.geojson','MTQ.geojson','GBR.geojson','ESP.geojson'
+    var countryCodes = [
+      'AUS','ARG','BRA','KHM','CAN','CHL','CHN','COL',
+      'KOR','FIN','GRC','MUS','IND','IDN','ITA','JPN',
+      'LAO','MYS','NZL','NLD','PRT','QAT','SGP','LKA',
+      'THA','TUN','USA','ESP','GLP','MAR','MTQ','GBR'
     ];
-
-    files.forEach(function(path){
-      fetch(path)
+    countryCodes.forEach(function(code) {
+      fetch(code + '.geojson')
         .then(res => res.json())
         .then(data => {
-          var layer = L.geoJSON(data, { style: style }).addTo(map);
-          overlays[path.replace('.geojson','').toUpperCase()] = layer;
+          overlays[code] = L.geoJSON(data, { style: style }).addTo(map);
         })
-        .catch(err => console.error('Erreur sur', path, err));
+        .catch(err => console.error('Erreur sur ' + code + '.geojson', err));
     });
 
-    // 8) Contrôles Leaflet
     L.control.layers(baseMaps, overlays, { collapsed:false }).addTo(map);
     L.control.scale({ position:'bottomleft', imperial:false }).addTo(map);
     L.control.fullscreen({ position:'topright' }).addTo(map);
 
-    // 9) Pose des marqueurs + tooltips
     var countryIcons = {
       CAN:[45.4215,-75.6972],CHN:[39.9042,116.4074],KOR:[37.5665,126.9780],
       GRC:[37.9838,23.7275],IDN:[-6.2088,106.8456],ITA:[41.9028,12.4964],
@@ -159,546 +155,110 @@
       GLP:[16.2650,-61.5500],MAR:[33.5731,-7.5898],MTQ:[14.6415,-61.0242]
     };
 
-    var countryMessages = {
-      CAN:"<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités de l'endroit où vous vous rendez.</li></ul>",CHN:"<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite</li></ul>",KOR:"<h3>Corée du Sud</h3> <ul><li>Le vapotage est interdit dans les lieux publics en dehors des zones fumeuses</li></ul>",GRC:"<h3>Grèce</h3> <ul><li>Taxation des e-liquides</li> <li>Apportez votre matériel avec vous</li></ul>",
-      IDN:"<h3>Indonésie</h3> <ul><li>Les vape shops se trouvent principalement à Bali</li> <li>Les e-liquides sont fortement taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",ITA:"<h3>Italie</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",MYS:"<h3>Malaisie</h3> <ul><li>Forte taxation des e-liquides</li> <li>Vente des e-liquides nicotinés réservée aux pharmacies agréées</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",PRT:"<h3>Portugal</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
-      TUN:"<h3>Tunisie</h3> <ul><li>Très peu d'e-liquides autorisés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",USA:"<h3>USA</h3> <ul><li>La législation varie fortement d'un État à l'autre</li> <li>Renseignez-vous auprès des autorités</li></ul>",AUS:"<h3>Australie</h3> <ul><li>Peu de vapeshops</li><li>Aucun produit de la vape en vente libre, ordonnance médicale nécessaire</li><li>Apportez votre matériel avec vous</li></ul>",ARG:"<h3>Argentine</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Apportez votre matériel avec vous</li></ul>",
-      BRA:"<h3>Brésil</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Apportez votre matériel avec vous</li>",KHM:"<h3>Cambodge</h3> <ul><li>Produits de la vape interdits</li> <li>Nous vous déconseillons de vous rendre au Cambodge avec votre matériel</li></ul>",CHL:"<h3>Chili</h3><ul><li>Commerce des produits de la vape interdit</li> <li>Apportez votre matériel avec vous</li></ul>",COL:"<h3>Colombie</h3> <ul><li>La vente des produits de la vape est interdite</li> <li>Apportez votre matériel avec vous</li></ul>",
-      FIN:"<h3>Finlande</h3> <ul><li>La grande majorité des arômes sont interdits dans les e-liquides.</li> <li>Apportez votre matériel avec vous</li></ul>",MUS:"<h3>Île Maurice</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Possibilité de rencontrer des problèmes à l'aéroport en cas de possession de produits de la vape</li> <li>A vos risques et périls</li></ul>",IND:"<h3>Inde</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Législation peu claire sur l'utilisation du vaporisateur personnel</li> <li>Nous vous déconseillons d'apporter votre matériel avec vous</li></ul>",JPN:"<h3>Japon</h3> <ul><li>La nicotine est classifiée comme un médicament</li> <li>Il est nécessaire d'obtenir une autorisation pour pouvoir apporter vos e-liquides nicotinés avec vous</li> <li>Nous vous conseillons de vous renseigner auprès des autorités locales</li></ul>",
-      LAO:"<h3>Laos</h3> <ul><li>Tous les produits de la vape sont interdits</li> <li>Nous vous déconseillons de vous rendre au Laos avec votre matériel</li></ul>",NLD:"<h3>Pays-Bas</h3> <ul><li>Les arômes sont interdits dans les e-liquides</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li> </ul>",QAT:"<h3>Qatar</h3> <ul><li>Le vapotage est interdit</li> <li>Nous vous déconseillons de vous rendre au Qatar avec votre matériel</li></ul>",SGP:"<h3>Singapour</h3> <ul><li>Le vapotage est considéré comme un délit</li> <li>Nous vous déconseillons <b>fortement</b> d'apporter votre matériel avec vous</li>",
-      LKA:"<h3>Sri Lanka</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",THA:"<h3>Thaïlande</h3> <ul><li>La Thaïlande est l'un des pays les plus restrictifs au monde en matière de vapotage</li> <li>Nous vous déconseillons <b>vivement</b> d'y apporter votre matériel</li> <li>Certains touristes ont déjà été emprisonné pour possession de produits de la vape</li></ul>",NZL:"Info NZ",
-      GLP:"Info Guadeloupe",MAR:"Info Maroc",MTQ:"Info Martinique"
+    var iso3to2 = {
+      CAN:'ca', CHN:'cn', KOR:'kr', GRC:'gr', IDN:'id', ITA:'it', MYS:'my', 
+      PRT:'pt', TUN:'tn', USA:'us', AUS:'au', ARG:'ar', BRA:'br', KHM:'kh', 
+      CHL:'cl', COL:'co', FIN:'fi', MUS:'mu', IND:'in', JPN:'jp', LAO:'la', 
+      NLD:'nl', QAT:'qa', SGP:'sg', LKA:'lk', THA:'th', NZL:'nz', GLP:'gp', 
+      MAR:'ma', MTQ:'mq', ESP:'es', GBR:'gb'
     };
 
-    Object.keys(countryIcons).forEach(function(code){
+    var countryMessages = {
+      CAN:"<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités.</li></ul>",
+      CHN:"<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite.</li></ul>",
+      KOR:"<h3>Corée du Sud</h3> <ul><li>Le vapotage est interdit hors zones fumeurs.</li></ul>",
+      GRC:"<h3>Grèce</h3> <ul><li>Taxation des e-liquides.</li><li>Apportez votre matériel.</li></ul>",
+      IDN:"<h3>Indonésie</h3> <ul><li>Shops surtout à Bali.</li><li>E-liquides fortement taxés.</li></ul>",
+      ITA:"<h3>Italie</h3> <ul><li>E-liquides taxés.</li><li>Apportez votre matériel.</li></ul>",
+      MYS:"<h3>Malaisie</h3> <ul><li>Taxation forte.</li><li>Vente restreinte aux pharmacies agréées.</li></ul>",
+      PRT:"<h3>Portugal</h3> <ul><li>E-liquides taxés.</li><li>Apportez votre matériel.</li></ul>",
+      TUN:"<h3>Tunisie</h3> <ul><li>Très peu d'e-liquides autorisés.</li><li>Apportez votre matériel.</li></ul>",
+      USA:"<h3>USA</h3> <ul><li>Législation variable par État.</li><li>Renseignez-vous localement.</li></ul>",
+      AUS:"<h3>Australie</h3> <ul><li>Peu de shops.</li><li>Ordonnance nécessaire.</li></ul>",
+      ARG:"<h3>Argentine</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
+      BRA:"<h3>Brésil</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
+      KHM:"<h3>Cambodge</h3> <ul><li>Produits interdits.</li><li>Nous déconseillons d'en apporter.</li></ul>",
+      CHL:"<h3>Chili</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
+      COL:"<h3>Colombie</h3> <ul><li>Vente interdite.</li><li>Apportez votre matériel.</li></ul>",
+      FIN:"<h3>Finlande</h3> <ul><li>Arômes interdits.</li><li>Apportez votre matériel.</li></ul>",
+      MUS:"<h3>Île Maurice</h3> <ul><li>Commerce interdit.</li><li>Attention aux douanes.</li></ul>",
+      IND:"<h3>Inde</h3> <ul><li>Commerce interdit.</li><li>Législation floue.</li></ul>",
+      JPN:"<h3>Japon</h3> <ul><li>Nicotine = médicament.</li><li>Autorisation nécessaire.</li></ul>",
+      LAO:"<h3>Laos</h3> <ul><li>Produits interdits.</li><li>Nous déconseillons d'en apporter.</li></ul>",
+      NLD:"<h3>Pays-Bas</h3> <ul><li>Arômes interdits.</li><li>Apportez votre matériel.</li></ul>",
+      QAT:"<h3>Qatar</h3> <ul><li>Vapoter interdit.</li><li>Nous déconseillons d'en apporter.</li></ul>",
+      SGP:"<h3>Singapour</h3> <ul><li>Délit puni.</li><li>N'apportez surtout pas votre matériel.</li></ul>",
+      LKA:"<h3>Sri Lanka</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
+      THA:"<h3>Thaïlande</h3> <ul><li>Très restrictif.</li><li>Risques élevés.</li></ul>",
+      NZL:"<h3>Nouvelle-Zélande</h3> <ul><li>Info à compléter.</li></ul>",
+      GLP:"<h3>Guadeloupe</h3> <ul><li>Info à compléter.</li></ul>",
+      MAR:"<h3>Maroc</h3> <ul><li>Info à compléter.</li></ul>",
+      MTQ:"<h3>Martinique</h3> <ul><li>Info à compléter.</li></ul>",
+      ESP:"<h3>Espagne</h3> <ul><li>Info à compléter.</li></ul>",
+      GBR:"<h3>Royaume-Uni</h3> <ul><li>Info à compléter.</li></ul>"
+    };
+
+    Object.keys(countryIcons).forEach(function(code) {
       var coords = countryIcons[code],
-          cat    = getCountryCategory(code);
-      if(!cat.icon) return;
+          cat    = getCountryCategory(code),
+          flag   = iso3to2[code] 
+            ? '<img src="https://flagcdn.com/32x24/' + iso3to2[code] + '.png" class="flag-icon">'
+            : '';
+      if (!cat.icon) return;
       L.marker(coords, { icon: cat.icon })
         .addTo(map)
-        .bindTooltip(countryMessages[code] || "Pas d'info", {
-          direction:'top', offset:[0,-10],
-          className:'custom-tooltip', interactive:true, sticky:true
-        });
+        .bindPopup(
+  countryMessages[code]
+    ? countryMessages[code].replace('<h3>', '<h3><img src="https://flagcdn.com/32x24/' + iso3to2[code] + '.png" class="flag-icon"> ')
+    : "Pas de message défini"
+)
+
     });
 
-    // 10) Légende
-    var legend = L.control({ position:'bottomright' });
-    legend.onAdd = function(){
-      var div = L.DomUtil.create('div','info legend'),
-          cols=['green','orange','red'],
-          labs=['Voyagez tranquilles','Précautions','Pays déconseillé'];
-      cols.forEach(function(c,i){
-        div.innerHTML +=
-          '<i style="background:'+c+';width:18px;height:18px;display:inline-block;margin-right:8px"></i>'
-          + labs[i] + '<br>';
+    var legend = L.control({ position: 'bottomright' });
+    legend.onAdd = function() {
+  var div = L.DomUtil.create('div', 'info legend');
+
+  if (isMobile) {
+    div.innerHTML = '<button id="legend-toggle">Afficher légende</button>' +
+                    '<div id="legend-content" style="display:none;"></div>';
+    setTimeout(() => {
+      var content = document.getElementById('legend-content');
+      var btn = document.getElementById('legend-toggle');
+      var cols = ['green', 'orange', 'red'];
+      var labs = ['Voyagez tranquilles', 'Des précautions sont à prévoir', 'Pays déconseillé'];
+      cols.forEach(function(c, i) {
+        content.innerHTML += '<i style="background:' + c + ';width:18px;height:18px;display:inline-block;margin-right:8px"></i>' +
+                             labs[i] + '<br>';
       });
-      return div;
-    };
+      btn.addEventListener('click', function() {
+        content.style.display = (content.style.display === 'none') ? 'block' : 'none';
+      });
+    }, 0);
+  } else {
+    var cols = ['green', 'orange', 'red'];
+    var labs = ['Voyagez tranquilles', 'Des précautions sont à prévoir', 'Pays déconseillé'];
+    cols.forEach(function(c, i) {
+      div.innerHTML += '<i style="background:' + c + ';width:18px;height:18px;display:inline-block;margin-right:8px"></i>' +
+                       labs[i] + '<br>';
+    });
+  }
+
+  return div;
+};
+
     legend.addTo(map);
 
-    // 11) Logo entreprise
     var LogoControl = L.Control.extend({
-      options:{position:'bottomleft'},
+      options:{ position:'bottomleft' },
       onAdd:function(){
-        var img=L.DomUtil.create('img','company-logo');
-        img.src='logo.png'; img.alt='Logo';
-        img.onclick=()=>window.open('https://fr.vapingpost.com/','_blank');
+        var img = L.DomUtil.create('img','company-logo');
+        img.src='logo.png'; img.alt='Logo de mon entreprise';
+        img.onclick = function(){ window.open('https://fr.vapingpost.com/','_blank'); };
         return img;
       }
     });
     map.addControl(new LogoControl());
   </script>
-</body>
-</html>
-
-
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        #map {
-            height: 100%;
-        }
-    </style>
-</head>
-
-<body>
-    <div id="map"></div>
-    <script>
-    var map = L.map('map').setView([48.8566, 2.3522], 5); // Paris centré
-
-// Déclaration des icônes
-var attentionIcon = L.icon({
-    iconUrl: 'attention.png',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32]
-});
-
-var dangerIcon = L.icon({
-  iconUrl: 'danger.png',
-  iconSize:  [32, 32],
-  iconAnchor:[16, 32],
-  popupAnchor:[0, -32],
-  className: 'danger-marker-icon'    // ← on ajoute cette classe
-});
-
-// Fond de carte
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-
-// Fonction utilitaire pour déterminer la catégorie
-function getCountryCategory(code) {
-    if (['CAN', 'CHN', 'KOR', 'GRC', 'IDN', 'ITA', 'MYS', 'PRT', 'TUN', 'USA'].includes(code)) {
-        return { color: 'orange', icon: attentionIcon };
-    }
-    else if (['AUS', 'ARG', 'BRA', 'KHM', 'CHL', 'COL', 'FIN', 'MUS', 'IND', 'JPN', 'LAO', 'NLD', 'QAT', 'SGP', 'LKA', 'THA'].includes(code)) {
-        return { color: 'red', icon: dangerIcon };
-    }
-    else {
-        return { color: 'green', icon: null };
-    }
-}
-
-// Fonction de style
-function style(feature) {
-    var code = feature.properties.shapeGroup || feature.properties.GID_0;
-    console.log('Pays détecté :', feature.properties);  // <— on inspecte tout
-
-    var category = getCountryCategory(code);
-
-    return {
-        fillColor: category.color,
-        weight: 1,               // active le tracé des contours
-        opacity: 1,              // rend les contours visibles
-        color: 'black',          // couleur des contours en noir
-        fillOpacity: 0.7
-    };
-}
-
-
-// Charger le fichier GeoJSON complet
-fetch('carte_interractive2.geojson')
-    .then(response => response.json())
-    .then(data => {
-        L.geoJSON(data, {
-            style: style,
-            onEachFeature: function (feature, layer) {
-                var code = feature.properties.shapeGroup || feature.properties.GID_0;
-                var category = getCountryCategory(code);
-
-                if (category.icon) {
-                    console.log('Ajout icône pour :', code);
-
-                    var latlng = null;
-
-                    if (layer.getBounds().isValid()) {
-                        latlng = layer.getBounds().getCenter();
-                    } else if (feature.geometry.type === 'Polygon') {
-                        var coords = feature.geometry.coordinates[0][0];
-                        latlng = L.latLng(coords[1], coords[0]);
-                    } else if (feature.geometry.type === 'MultiPolygon') {
-                        var coords = feature.geometry.coordinates[0][0][0];
-                        latlng = L.latLng(coords[1], coords[0]);
-                    }
-                    
-                    if (latlng) {
-                        L.marker(latlng, { icon: category.icon }).addTo(map);
-                    }
-                    
-                }
-            }
-        }).addTo(map);
-    })
-    .catch(error => console.error('Erreur de chargement GeoJSON:', error));
-
-
-
-
-
-        // Ajouter les frontières du Royaume-Uni
-        fetch('GBR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: style }).addTo(map);
-            })
-            .catch(error => console.error('Erreur de chargement GeoJSON pour le Royaume-Uni:', error));
-
-            // Ajouter les frontières de l'Argentine
-        fetch('ARG.geojson') // Remplace "ARG.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Argentine:', error));
-
-        // Ajouter les frontières du Brésil
-        fetch('BRA.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour BRA.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour le Brésil:', err));
-
-
-            // Ajouter les frontières du Cambodge
-        fetch('KHM.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Cambodge:', error));
-
-        // Ajouter les frontières du Canada
-        fetch('CAN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: style }).addTo(map);
-            })
-            .catch(error => console.error('Erreur de chargement GeoJSON pour le Canada:', error));
-
-            // Ajouter les frontières du Chili
-            fetch('CHL.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour CHL.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour le Chili:', err));
-
-        // Ajouter les frontières de la Chine
-        fetch('CHN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-            .then(response => response.json())
-            .then(data => {
-                L.geoJSON(data, { style: style }).addTo(map);
-            })
-            .catch(error => console.error('Erreur de chargement GeoJSON pour la Chine:', error));
-
-            // Ajouter les frontières de la Colombie
-        fetch('COL.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour la Colombie:', error));
-
-        // Ajouter les frontières de l'Espagne'
-        fetch('ESP.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Espagne:', error));
-
-          // Ajouter les frontières de la Finlande
-          fetch('FIN.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour FIN.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour la Finlande:', err));
-
-            // Ajouter les frontières de la Grèce
-        fetch('GRC.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour la Grèce:', error));
-
-          // Ajouter les frontières de la Guadeloupe
-          fetch('GLP.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour GLP.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour la Guadeloupe:', err));
-
-
-            // Ajouter les frontières de l'Indonésie'
-        fetch('IDN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Indonésie:', error));
-
-             // Ajouter les frontières de l'Inde'
-             fetch('IND.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Inde:', error));
-
-          // Ajouter les frontières de l'Italie'
-          fetch('ITA.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour ITA.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour l\'Italie:', err));
-
-            // Ajouter les frontières du Japon
-        fetch('JPN.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Japon:', error));
-
-          // Ajouter les frontières de la Corée du Sud
-          fetch('KOR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-          .then(response => response.json())
-          .then(data => {
-              L.geoJSON(data, { style: style }).addTo(map);
-          })
-          .catch(error => console.error('Erreur de chargement GeoJSON pour la Corée du Sud:', error));
-
-            // Ajouter les frontières du Laos
-        fetch('LAO.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Laos:', error));
-
-          // Ajouter les frontières de la Malaisie
-          fetch('MYS.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-          .then(response => response.json())
-          .then(data => {
-              L.geoJSON(data, { style: style }).addTo(map);
-          })
-          .catch(error => console.error('Erreur de chargement GeoJSON pour la Malaisie:', error));
-
-            // Ajouter les frontières du Maroc
-        fetch('MAR.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Maroc:', error));
-
-          // Ajouter les frontières de l'île Maurice
-          fetch('MUS.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour MUS.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour la Ile Maurice:', err));
-
-            // Ajouter les frontières de la Martinique
-        fetch('MTQ.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour la Martinique:', error));
-
-           // Ajouter les frontières des Pays-Bas
-           fetch('NLD.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-           .then(response => response.json())
-           .then(data => {
-               L.geoJSON(data, { style: style }).addTo(map);
-           })
-           .catch(error => console.error('Erreur de chargement GeoJSON pour les Pays-Bas:', error));
-
-              // Ajouter les frontières de la Nouvelle-Zélande
-        fetch('NZL.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour la Nouvelle-Zélande:', error));
-
-           // Ajouter les frontières du Portugal
-           fetch('PRT.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON
-           .then(response => response.json())
-           .then(data => {
-               L.geoJSON(data, { style: style }).addTo(map);
-           })
-           .catch(error => console.error('Erreur de chargement GeoJSON pour le Portugal:', error));
-
-              // Ajouter les frontières du Qatar
-        fetch('QAT.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-        .then(response => response.json())
-        .then(data => {
-            L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(error => console.error('Erreur de chargement GeoJSON pour le Qatar:', error));
-
-           // Ajouter les frontières de Singapoure
-           fetch('SGP.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour SGP.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour Singapour:', err));
-
-
-             // Ajouter les frontières du Sri Lanka
-             fetch('SRI.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-             .then(response => response.json())
-             .then(data => {
-                 L.geoJSON(data, { style: style }).addTo(map);
-             })
-             .catch(error => console.error('Erreur de chargement GeoJSON pour le Sri-Lanka:', error));
-
-               // Ajouter les frontières de la Thaïlande
-           fetch('THA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-           .then(response => response.json())
-           .then(data => {
-               L.geoJSON(data, { style: style }).addTo(map);
-           })
-           .catch(error => console.error('Erreur de chargement GeoJSON pour la Thailande:', error));
-
-             // Ajouter les frontières de la Tunisie
-             fetch('TUN.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour TUN.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour la Tunisie:', err));
-
-               // Ajouter les frontières des USA
-           fetch('USA.geojson') // Remplace "GBR.geojson" par le chemin relatif vers ton fichier GeoJSON 
-           .then(response => response.json())
-           .then(data => {
-               L.geoJSON(data, { style: style }).addTo(map);
-           })
-           .catch(error => console.error('Erreur de chargement GeoJSON pour les USA:', error));
-
-        // Ajouter les frontières de l'Autriche
-        fetch('AUT.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour AUT.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour Autriche:', err));
-
-        // Ajouter les frontières de l'Espagne
-        fetch('ESP.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour ESP.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour l\'Espagne:', err));
-
-
-            // Ajouter les frontières de l'Australie
-            fetch('AUS.geojson')
-  .then(res => res.text())
-  .then(txt => {
-    console.log('Contenu brut chargé pour AUS.geojson :\n', txt.substr(0, 200));
-    return JSON.parse(txt);
-  })
-  .then(data => {
-    L.geoJSON(data, { style: style }).addTo(map);
-  })
-  .catch(err => console.error('Erreur de chargement GeoJSON pour l\'Australie:', err));
-
-
-        // Créer un contrôle de légende
-var legend = L.control({ position: 'bottomright' });
-
-legend.onAdd = function (map) {
-    var div = L.DomUtil.create('div', 'info legend'),
-        colors = ['green', 'orange', 'red'],
-        labels = ['Voyagez sans risque', 'Certaines précautions sont à prendre', 'Vapotage interdit, n\'emmenez pas votre matériel avec vous'];
-
-    // Boucle pour générer les carrés de couleur + texte
-    for (var i = 0; i < colors.length; i++) {
-        div.innerHTML +=
-            '<i style="background:' + colors[i] + '; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i> ' +
-            labels[i] + '<br>';
-    }
-
-    return div;
-};
-
-legend.addTo(map);
-
-    
-const countryIcons = {
-    CAN: [45.4215, -75.6972],     // Ottawa
-    CHN: [39.9042, 116.4074],     // Pékin
-    KOR: [37.5665, 126.9780],     // Séoul
-    GRC: [37.9838, 23.7275],      // Athènes
-    IDN: [-6.2088, 106.8456],     // Jakarta
-    ITA: [41.9028, 12.4964],      // Rome
-    MYS: [3.1390, 101.6869],      // Kuala Lumpur
-    PRT: [38.7169, -9.1399],      // Lisbonne
-    TUN: [36.8065, 10.1815],      // Tunis
-    USA: [38.9072, -77.0369],     // Washington
-
-    AUS: [-35.2809, 149.1300],    // Canberra
-    ARG: [-34.6037, -58.3816],    // Buenos Aires
-    BRA: [-15.7801, -47.9292],    // Brasília
-    KHM: [11.5564, 104.9282],     // Phnom Penh
-    CHL: [-33.4489, -70.6693],    // Santiago
-    COL: [4.7110, -74.0721],      // Bogotá
-    FIN: [60.1695, 24.9354],      // Helsinki
-    MUS: [-20.1654, 57.4896],     // Port-Louis
-    IND: [28.6139, 77.2090],      // New Delhi
-    JPN: [35.6895, 139.6917],     // Tokyo
-    LAO: [17.9757, 102.6331],     // Vientiane
-    NLD: [52.3676, 4.9041],       // Amsterdam
-    QAT: [25.2769, 51.5200],      // Doha
-    SGP: [1.3521, 103.8198],      // Singapour
-    LKA: [6.9271, 79.8612],       // Colombo
-    THA: [13.7563, 100.5018]      // Bangkok
-};
-
-for (const code in countryIcons) {
-    const coords = countryIcons[code];
-    const category = getCountryCategory(code);
-
-    if (category.icon) {
-        L.marker(coords, { icon: category.icon }).addTo(map);
-    }
-}
-
-</script>
 </body>
 </html>
