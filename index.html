@@ -21,8 +21,6 @@
     }
     .custom-tooltip::before { border-top-color: rgba(0,0,0,0.8); }
 
-
-    
     .info.legend {
       background: white;
       padding: 6px;
@@ -30,6 +28,19 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       border-radius: 5px;
     }
+
+    #legend-toggle {
+  background-color: white;
+  border: 1px solid gray;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  border-radius: 4px;
+}
+
+#legend-content {
+  margin-top: 4px;
+}
 
     .danger-marker-icon, .attention-marker-icon {
       filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
@@ -63,19 +74,6 @@
       margin-right: 5px;
       vertical-align: middle;
     }
-
-    #legend-toggle {
-  background-color: white;
-  border: 1px solid gray;
-  padding: 4px 8px;
-  cursor: pointer;
-  margin-bottom: 4px;
-  border-radius: 4px;
-}
-
-#legend-content {
-  margin-top: 4px;
-}
   </style>
 </head>
 <body>
@@ -87,7 +85,7 @@
 
   <script>
     // Détecter mobile
-var isMobile = window.innerWidth < 768;
+    var isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
 
 // Centrage et zoom selon device
 var mapCenter = isMobile ? [50, 10] : [20, 0];
