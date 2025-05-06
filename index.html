@@ -134,7 +134,7 @@ body.is-mobile .leaflet-popup-content ul {
 body.is-mobile .leaflet-control-zoom,
 body.is-mobile .leaflet-control-fullscreen,
 body.is-mobile .leaflet-control-layers {
-  transform: scale(1.2);
+  transform: scale(1.4);
 }
 
 body.is-mobile .leaflet-control-scale {
@@ -240,7 +240,7 @@ var map = L.map('map').setView(mapCenter, mapZoom);
 
     L.control.layers(baseMaps, overlays, { collapsed:false }).addTo(map);
     L.control.scale({ position:'bottomleft', imperial:false }).addTo(map);
-    L.control.fullscreen({ position:'topright' }).addTo(map);
+    L.control.fullscreen({ position:'topleft' }).addTo(map);
 
     var countryIcons = {
       CAN:[45.4215,-75.6972],CHN:[39.9042,116.4074],KOR:[37.5665,126.9780],
