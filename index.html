@@ -38,11 +38,6 @@
   border-radius: 4px;
 }
 
-    body.is-mobile .info.legend {
-  font-size: 1.2em; /* par exemple, agrandir la légende */
-  padding: 10px;
-}
-
     body.is-mobile #legend-content {
   font-size: calc(3vw + 6px);
   line-height: 1.6;
@@ -62,10 +57,6 @@ body.is-mobile .leaflet-control-fullscreen a,
 body.is-mobile .leaflet-control-zoom a {
   transform: scale(1.5);
   margin-bottom: 10px; /* espace entre les boutons */
-}
-
-body.is-mobile .leaflet-control-scale {
-  font-size: calc(2.5vw + 6px);
 }
 
     body.is-mobile .custom-tooltip {
@@ -112,7 +103,7 @@ body.is-mobile .leaflet-control-scale {
       vertical-align: middle;
     }
 
-    body.is-mobile .info.legend {
+   body.is-mobile .info.legend {
   font-size: 1.1em;
   padding: 10px;
   line-height: 1.6;
@@ -124,8 +115,23 @@ body.is-mobile .info.legend i {
   margin-right: 10px;
 }
 
+body.is-mobile #legend-toggle {
+  font-size: calc(3vw + 8px);
+  padding: calc(1vw + 4px) calc(2vw + 6px);
+  background-color: white;
+  border: 1px solid gray;
+  cursor: pointer;
+  margin-bottom: 4px;
+  border-radius: 4px;
+}
+
+body.is-mobile #legend-content {
+  font-size: calc(3vw + 6px);
+  line-height: 1.6;
+}
+
 body.is-mobile .leaflet-popup-content {
-  font-size: 1.8em;   /* plus grand qu'avant */
+  font-size: 1.8em;
   line-height: 1.8;
 }
 
@@ -144,47 +150,37 @@ body.is-mobile .leaflet-control-layers {
   transform: scale(1.4);
 }
 
+body.is-mobile .leaflet-control-fullscreen {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%) scale(1.4);
+  z-index: 1000;
+}
+
+body.is-mobile .leaflet-control-zoom {
+  margin-top: 40px;
+  margin-left: 40px;
+}
+
+body.is-mobile .leaflet-control-layers {
+  margin-top: 30px;
+  margin-right: 30px;
+}
+
 body.is-mobile .leaflet-control-scale {
-  font-size: 1.2em;
+  display: none;
 }
 
 body.is-mobile .company-logo {
   width: 140px;
 }
 
-    body.is-mobile #legend-toggle {
-  font-size: calc(3vw + 8px);
-  padding: calc(1vw + 4px) calc(2vw + 6px);
-  background-color: white;
-  border: 1px solid gray;
-  cursor: pointer;
-  margin-bottom: 4px;
-  border-radius: 4px;
+body.is-mobile .custom-tooltip {
+  font-size: 1.2em;
+  padding: 8px 12px;
+  line-height: 1.5;
 }
-
-  body.is-mobile .leaflet-control-fullscreen {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
-body.is-mobile .leaflet-control-zoom {
-  margin-top: 40px;    /* espace depuis le haut */
-  margin-left: 40px;   /* espace depuis la gauche */
-}
-
-body.is-mobile .leaflet-control-layers {
-  margin-top: 30px;    /* espace depuis le haut */
-  margin-right: 30px;  /* espace depuis la droite */
-}
-
-    body.is-mobile .leaflet-control-scale {
-  display: none;
-}
-
-
 
   </style>
 </head>
