@@ -222,20 +222,15 @@ var map = L.map('map').setView(mapCenter, mapZoom);
       };
     }
 
-    var countryCodes = [
-      'AUS','ARG','BRA','KHM','CAN','CHL','CHN','COL',
-      'KOR','FIN','GRC','MUS','IND','IDN','ITA','JPN',
-      'LAO','MYS','NZL','NLD','PRT','QAT','SGP','LKA',
-      'THA','TUN','USA','ESP','GLP','MAR','MTQ','GBR'
-    ];
-    countryCodes.forEach(function(code) {
-      fetch(code + '.geojson')
-        .then(res => res.json())
-        .then(data => {
-          overlays[code] = L.geoJSON(data, { style: style }).addTo(map);
-        })
-        .catch(err => console.error('Erreur sur ' + code + '.geojson', err));
-    });
+    fetch('all_countries.geojson')
+  .then(res => res.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: style
+    }).addTo(map);
+  })
+  .catch(err => console.error('Erreur lors du chargement du GeoJSON', err));
+
 
     L.control.layers(baseMaps, overlays, { collapsed:false }).addTo(map);
     L.control.scale({ position:'bottomleft', imperial:false }).addTo(map);
