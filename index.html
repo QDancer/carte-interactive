@@ -124,7 +124,7 @@ body.is-mobile .info.legend i {
 }
 
 body.is-mobile .leaflet-popup-content {
-  font-size: 1.6em;   /* plus grand qu'avant */
+  font-size: 1.8em;   /* plus grand qu'avant */
   line-height: 1.8;
 }
 
@@ -280,38 +280,34 @@ var map = L.map('map').setView(mapCenter, mapZoom);
     };
 
     var countryMessages = {
-      CAN:"<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités.</li></ul>",
-      CHN:"<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite.</li></ul>",
-      KOR:"<h3>Corée du Sud</h3> <ul><li>Le vapotage est interdit hors zones fumeurs.</li></ul>",
-      GRC:"<h3>Grèce</h3> <ul><li>Taxation des e-liquides.</li><li>Apportez votre matériel.</li></ul>",
-      IDN:"<h3>Indonésie</h3> <ul><li>Shops surtout à Bali.</li><li>E-liquides fortement taxés.</li></ul>",
-      ITA:"<h3>Italie</h3> <ul><li>E-liquides taxés.</li><li>Apportez votre matériel.</li></ul>",
-      MYS:"<h3>Malaisie</h3> <ul><li>Taxation forte.</li><li>Vente restreinte aux pharmacies agréées.</li></ul>",
-      PRT:"<h3>Portugal</h3> <ul><li>E-liquides taxés.</li><li>Apportez votre matériel.</li></ul>",
-      TUN:"<h3>Tunisie</h3> <ul><li>Très peu d'e-liquides autorisés.</li><li>Apportez votre matériel.</li></ul>",
-      USA:"<h3>USA</h3> <ul><li>Législation variable par État.</li><li>Renseignez-vous localement.</li></ul>",
-      AUS:"<h3>Australie</h3> <ul><li>Peu de shops.</li><li>Ordonnance nécessaire.</li></ul>",
-      ARG:"<h3>Argentine</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
-      BRA:"<h3>Brésil</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
-      KHM:"<h3>Cambodge</h3> <ul><li>Produits interdits.</li><li>Nous déconseillons d'en apporter.</li></ul>",
-      CHL:"<h3>Chili</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
-      COL:"<h3>Colombie</h3> <ul><li>Vente interdite.</li><li>Apportez votre matériel.</li></ul>",
-      FIN:"<h3>Finlande</h3> <ul><li>Arômes interdits.</li><li>Apportez votre matériel.</li></ul>",
-      MUS:"<h3>Île Maurice</h3> <ul><li>Commerce interdit.</li><li>Attention aux douanes.</li></ul>",
-      IND:"<h3>Inde</h3> <ul><li>Commerce interdit.</li><li>Législation floue.</li></ul>",
-      JPN:"<h3>Japon</h3> <ul><li>Nicotine = médicament.</li><li>Autorisation nécessaire.</li></ul>",
-      LAO:"<h3>Laos</h3> <ul><li>Produits interdits.</li><li>Nous déconseillons d'en apporter.</li></ul>",
-      NLD:"<h3>Pays-Bas</h3> <ul><li>Arômes interdits.</li><li>Apportez votre matériel.</li></ul>",
-      QAT:"<h3>Qatar</h3> <ul><li>Vapoter interdit.</li><li>Nous déconseillons d'en apporter.</li></ul>",
-      SGP:"<h3>Singapour</h3> <ul><li>Délit puni.</li><li>N'apportez surtout pas votre matériel.</li></ul>",
-      LKA:"<h3>Sri Lanka</h3> <ul><li>Commerce interdit.</li><li>Apportez votre matériel.</li></ul>",
-      THA:"<h3>Thaïlande</h3> <ul><li>Très restrictif.</li><li>Risques élevés.</li></ul>",
-      NZL:"<h3>Nouvelle-Zélande</h3> <ul><li>Info à compléter.</li></ul>",
-      GLP:"<h3>Guadeloupe</h3> <ul><li>Info à compléter.</li></ul>",
-      MAR:"<h3>Maroc</h3> <ul><li>Info à compléter.</li></ul>",
-      MTQ:"<h3>Martinique</h3> <ul><li>Info à compléter.</li></ul>",
-      ESP:"<h3>Espagne</h3> <ul><li>Info à compléter.</li></ul>",
-      GBR:"<h3>Royaume-Uni</h3> <ul><li>Info à compléter.</li></ul>"
+      CAN:"<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités de l'endroit où vous vous rendez.</li></ul>",
+      CHN:"<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite</li></ul>",
+      KOR:"<h3>Corée du Sud</h3> <ul><li>Le vapotage est interdit dans les lieux publics en dehors des zones fumeurs</li></ul>",
+      GRC:"<h3>Grèce</h3> <ul><li>Taxation des e-liquides</li> <li>Apportez votre matériel avec vous</li></ul>",
+      IDN:"<h3>Indonésie</h3> <ul><li>Les vape shops se trouvent principalement à Bali</li> <li>Les e-liquides sont fortement taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      ITA:"<h3>Italie</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      MYS:"<h3>Malaisie</h3> <ul><li>Forte taxation des e-liquides</li> <li>Vente des e-liquides nicotinés réservée aux pharmacies agréées</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      PRT:"<h3>Portugal</h3> <ul><li>Les e-liquides sont taxés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      TUN:"<h3>Tunisie</h3> <ul><li>Très peu d'e-liquides autorisés</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      USA:"<h3>USA</h3> <ul><li>La législation varie fortement d'un État à l'autre</li> <li>Renseignez-vous auprès des autorités</li></ul>",
+      AUS:"<h3>Australie</h3> <ul><li>Peu de vapeshops</li><li>Aucun produit de la vape en vente libre, ordonnance médicale nécessaire</li><li>Apportez votre matériel avec vous</li></ul>",
+      ARG:"<h3>Argentine</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Apportez votre matériel avec vous</li></ul>",
+      BRA:"<h3>Brésil</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Apportez votre matériel avec vous</li>",
+      KHM:"<h3>Cambodge</h3> <ul><li>Produits de la vape interdits</li> <li>Nous vous déconseillons de vous rendre au Cambodge avec votre matériel</li></ul>",
+      CHL:"<h3>Chili</h3><ul><li>Commerce des produits de la vape interdit</li> <li>Apportez votre matériel avec vous</li></ul>",
+      COL:"<h3>Colombie</h3> <ul><li>La vente des produits de la vape est interdite</li> <li>Apportez votre matériel avec vous</li></ul>",
+      FIN:"<h3>Finlande</h3> <ul><li>La grande majorité des arômes sont interdits dans les e-liquides.</li> <li>Apportez votre matériel avec vous</li></ul>",
+      MUS:"<h3>Île Maurice</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Possibilité de rencontrer des problèmes à l'aéroport en cas de possession de produits de la vape</li> <li>A vos risques et périls</li></ul>",
+      IND:"<h3>Inde</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Législation peu claire sur l'utilisation du vaporisateur personnel</li> <li>Nous vous déconseillons d'apporter votre matériel avec vous</li></ul>",
+      JPN:"<h3>Japon</h3> <ul><li>La nicotine est classifiée comme un médicament</li> <li>Il est nécessaire d'obtenir une autorisation pour pouvoir apporter vos e-liquides nicotinés avec vous</li> <li>Nous vous conseillons de vous renseigner auprès des autorités locales</li></ul>",
+      LAO:"<h3>Laos</h3> <ul><li>Tous les produits de la vape sont interdits</li> <li>Nous vous déconseillons de vous rendre au Laos avec votre matériel</li></ul>",
+      NLD:"<h3>Pays-Bas</h3> <ul><li>Les arômes sont interdits dans les e-liquides</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li> </ul>",
+      QAT:"<h3>Qatar</h3> <ul><li>Le vapotage est interdit</li> <li>Nous vous déconseillons de vous rendre au Qatar avec votre matériel</li></ul>",
+      SGP:"<h3>Singapour</h3> <ul><li>Le vapotage est considéré comme un délit</li> <li>Nous vous déconseillons <b>fortement</b> d'apporter votre matériel avec vous</li>",
+      LKA:"<h3>Sri Lanka</h3> <ul><li>Commerce des produits de la vape interdit</li> <li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul>",
+      THA:"<h3>Thaïlande</h3> <ul><li>La Thaïlande est l'un des pays les plus restrictifs au monde en matière de vapotage</li> <li>Nous vous déconseillons <b>vivement</b> d'y apporter votre matériel</li> <li>Certains touristes ont déjà été emprisonné pour possession de produits de la vape</li></ul>",
+      NZL:"Info NZ",
+      GLP:"Info Guadeloupe",MAR:"Info Maroc",MTQ:"Info Martinique"
     };
 
     Object.keys(countryIcons).forEach(function(code) {
