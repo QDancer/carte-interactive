@@ -38,6 +38,21 @@
   border-radius: 4px;
 }
 
+    body.is-mobile .info.legend {
+  font-size: 1.2em; /* par exemple, agrandir la légende */
+  padding: 10px;
+}
+
+    body.is-mobile .leaflet-popup-content {
+  font-size: 1.1em;
+}
+
+body.is-mobile .leaflet-control {
+  margin: 6px;
+}
+
+
+
 #legend-content {
   margin-top: 4px;
 }
@@ -86,6 +101,11 @@
   <script>
     // Détecter mobile
     var isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
+
+    if (/Mobi|Android/i.test(navigator.userAgent)) {
+  document.body.classList.add('is-mobile');
+}
+
 
 // Centrage et zoom selon device
 var mapCenter = isMobile ? [50, 10] : [20, 0];
