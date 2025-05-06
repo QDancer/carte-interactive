@@ -226,10 +226,35 @@ var map = L.map('map').setView(mapCenter, mapZoom);
   .then(res => res.json())
   .then(data => {
     L.geoJSON(data, {
-      style: style
+      style: style,
+
+      // ← Ajout de cette fonction
+      onEachFeature: function(feature, layer) {
+        // 1) Récupération du code ISO3 du pays
+        var code = feature.properties.shapeGroup || feature.properties.GID_0;
+
+        // 2) Si un message est défini pour ce code…
+        if (countryMessages[code]) {
+          // 3) On attache la popup au polygone
+          layer.bindPopup(
+            countryMessages[code]
+              .replace(
+                '<h3>',
+                '<h3><img src="https://flagcdn.com/32x24/' +
+                  iso3to2[code] +
+                  '.png" class="flag-icon"> '
+              ),
+            {
+              className: 'custom-tooltip',
+              maxWidth: 250
+            }
+          );
+        }
+      }
     }).addTo(map);
   })
   .catch(err => console.error('Erreur lors du chargement du GeoJSON', err));
+
 
 
     L.control.layers(baseMaps, overlays, { collapsed:false }).addTo(map);
