@@ -306,7 +306,15 @@ var map = L.map('map').setView(mapCenter, mapZoom);
                              labs[i] + '<br>';
       });
       btn.addEventListener('click', function() {
-        content.style.display = (content.style.display === 'none') ? 'block' : 'none';
+  if (content.style.display === 'none') {
+    content.style.display = 'block';
+    btn.textContent = 'Masquer légende';
+  } else {
+    content.style.display = 'none';
+    btn.textContent = 'Afficher légende';
+  }
+});
+
       });
     }, 0);
   } else {
