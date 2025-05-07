@@ -75,6 +75,22 @@
     vertical-align: middle;
   }
 
+  #fullscreen-tooltip {
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+}
+
+body:not(.is-mobile) #fullscreen-tooltip {
+  width: 60%;
+  height: 70%;
+  top: 15%;
+  left: 20%;
+}
+
+
+
   /* --------- MOBILE ADAPTATIONS --------- */
   body.is-mobile .info.legend {
     font-size: 1.1em;
@@ -179,21 +195,58 @@ body.is-mobile #fullscreen-tooltip ul {
   line-height: 1.6;
 }
 
-#close-tooltip {
-  display: none; /* affiché seulement quand tooltip ouvert */
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  font-size: 1.5em;
-  padding: 8px 12px;
-  z-index: 3000;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid gray;
-  border-radius: 4px;
-  backdrop-filter: blur(4px);
-  opacity: 0.6;
-  transition: opacity 0.3s, background 0.3s;
+
+body.is-mobile #close-tooltip:hover,
+body.is-mobile #close-tooltip:focus,
+body.is-mobile #close-tooltip:active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.9);
 }
+
+/* Sur desktop : le panneau #fullscreen-tooltip devient un conteneur relatif */
+@media (min-width: 768px) {
+  #fullscreen-tooltip {
+    position: relative; /* ancre l’absolu dedans */
+    width: 70%;         /* réduit la largeur */
+    height: auto;
+    max-height: 90vh;   /* limite la hauteur */
+    margin: 5% auto;    /* centre le panneau */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  @media (min-width: 768px) {
+  /* Assure que le panneau est bien positionné pour servir de parent de référence */
+  #fullscreen-tooltip {
+    position: relative;
+    width: 70%;
+    max-height: 90vh;
+    margin: 5% auto;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  /* Nouveau positionnement du bouton DANS le panneau, desktop uniquement */
+  #fullscreen-tooltip #close-tooltip {
+    position: absolute !important;
+    top: 10px            !important;
+    right: 10px          !important;
+    z-index: 10;
+    opacity: 0.6;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 1.5em;
+    transition: opacity 0.3s, background 0.3s;
+  }
+  #fullscreen-tooltip #close-tooltip:hover {
+    opacity: 1;
+    background: rgba(255,255,255,0.9);
+  }
+}
+
+
 
 
 body.is-mobile #close-tooltip:hover,
@@ -202,6 +255,7 @@ body.is-mobile #close-tooltip:active {
   opacity: 1;
   background: rgba(255, 255, 255, 0.9);
 }
+
 
 
 
@@ -223,6 +277,28 @@ body.tooltip-open .leaflet-control {
   display: none !important;
 }
 
+/* === Position mobile (fixed) === */
+body.is-mobile #close-tooltip {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+
+/* === Position desktop (absolute DANS le panneau) === */
+@media (min-width: 768px) {
+  /* On s’assure que le panneau est parent positionné */
+  #fullscreen-tooltip {
+    position: relative;
+  }
+
+  /* Le bouton se place en absolute DANS #fullscreen-tooltip */
+  #fullscreen-tooltip #close-tooltip {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+  }
+}
 
 
 </style>
@@ -231,42 +307,38 @@ body.tooltip-open .leaflet-control {
 <body>
   <div id="map"></div>
 
- <!-- Bouton Fermer placé en-dehors -->
-<button id="close-tooltip" style="
-display: none;
-position: fixed;
-top: 10px;
-right: 10px;
-padding: 8px 12px;
-font-size: 1.5em;
-z-index: 3000;
-background: rgba(255, 255, 255, 0.7);
-border: 1px solid gray;
-border-radius: 4px;
-backdrop-filter: blur(4px);
-opacity: 0.6;
-transition: opacity 0.3s, background 0.3s;
-">Fermer</button>
 
-<!-- Tooltip fullscreen -->
+
+  <!-- Tooltip fullscreen -->
 <div id="fullscreen-tooltip" style="
-display: none;
-position: fixed;
-top: 5%;
-left: 5%;
-width: 90%;
-height: 90%;
-background: white;
-border: 3px solid gray;
-border-radius: 10px;
-box-shadow: 0 0 20px rgba(0,0,0,0.5);
-z-index: 2000;
-overflow: auto;
-padding: 20px;
+  display: none;
+  position: fixed;
+  background: white;
+  border: 3px solid gray;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  z-index: 2000;
+  overflow: auto;
+  padding: 20px;
 ">
-<div id="tooltip-content">
-  <!-- Contenu dynamique -->
-</div>
+  <!-- Bouton Fermer à l’intérieur du panneau -->
+  <button id="close-tooltip" style="
+    display: none;
+    /* on enlève toute position inline, on gère ça en CSS */
+    padding: 8px 12px;
+    font-size: 1.5em;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid gray;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+    opacity: 0.6;
+    transition: opacity 0.3s, background 0.3s;
+  ">Fermer</button>
+
+  <div id="tooltip-content">
+    <!-- Contenu dynamique -->
+  </div>
 </div>
 
 
@@ -401,35 +473,37 @@ var map = L.map('map').setView(mapCenter, mapZoom);
   AUS: "<h3>Australie</h3> <ul><li>Peu de vapeshops</li><li>Aucun produit de la vape en vente libre, ordonnance médicale nécessaire</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"AUS\">Plus d'info</a>",
   BEL: "<h3>Belgique</h3><ul><li>Les e-liquides sont taxés</li><li>Les puffs sont interdites</li><li>Emportez votre matériel avec vous.</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"BEL\">Plus d'info</a>",
   BRA: "<h3>Brésil</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"BRA\">Plus d'info</a>",
-  DNK: "<h3>Danemark</h3> <ul><li>Les arômes sont interdits dans les e-liquides</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"DNK\">Plus d'info</a>",
-  KHM: "<h3>Cambodge</h3> <ul><li>Produits de la vape interdits</li><li>Nous vous déconseillons de vous rendre au Cambodge avec votre matériel</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"KHM\">Plus d'info</a>",
   CAN: "<h3>Canada</h3> <ul><li>La loi dépend des États. Renseignez-vous auprès des autorités de l'endroit où vous vous rendez.</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"CAN\">Plus d'info</a>",
   CHL: "<h3>Chili</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"CHL\">Plus d'info</a>",
   CHN: "<h3>Chine</h3> <ul><li>La vente en ligne des produits de la vape est interdite</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"CHN\">Plus d'info</a>",
   COL: "<h3>Colombie</h3> <ul><li>La vente des produits de la vape est interdite</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"COL\">Plus d'info</a>",
+  DNK: "<h3>Danemark</h3> <ul><li>Les arômes sont interdits dans les e-liquides</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"DNK\">Plus d'info</a>",
   FIN: "<h3>Finlande</h3> <ul><li>La grande majorité des arômes sont interdits dans les e-liquides.</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"FIN\">Plus d'info</a>",
   GRC: "<h3>Grèce</h3> <ul><li>Taxation des e-liquides</li><li>Apportez votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"GRC\">Plus d'info</a>",
-  IND: "<h3>Inde</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Législation peu claire sur l'utilisation du vaporisateur personnel</li><li>Nous vous déconseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"IND\">Plus d'info</a>",
   IDN: "<h3>Indonésie</h3> <ul><li>Les vape shops se trouvent principalement à Bali</li><li>Les e-liquides sont fortement taxés</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"IDN\">Plus d'info</a>",
+  IND: "<h3>Inde</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Législation peu claire sur l'utilisation du vaporisateur personnel</li><li>Nous vous déconseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"IND\">Plus d'info</a>",
   ITA: "<h3>Italie</h3> <ul><li>Les e-liquides sont taxés</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"ITA\">Plus d'info</a>",
   JPN: "<h3>Japon</h3> <ul><li>La nicotine est classifiée comme un médicament</li><li>Il est nécessaire d'obtenir une autorisation pour apporter vos e-liquides nicotinés</li><li>Nous vous conseillons de vous renseigner auprès des autorités locales</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"JPN\">Plus d'info</a>",
+  KHM: "<h3>Cambodge</h3> <ul><li>Produits de la vape interdits</li><li>Nous vous déconseillons de vous rendre au Cambodge avec votre matériel</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"KHM\">Plus d'info</a>",
   LAO: "<h3>Laos</h3> <ul><li>Tous les produits de la vape sont interdits</li><li>Nous vous déconseillons de vous rendre au Laos avec votre matériel</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"LAO\">Plus d'info</a>",
+  LKA: "<h3>Sri Lanka</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"LKA\">Plus d'info</a>",
   MYS: "<h3>Malaisie</h3> <ul><li>Forte taxation des e-liquides</li><li>Vente des e-liquides nicotinés réservée aux pharmacies agréées</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"MYS\">Plus d'info</a>",
   MUS: "<h3>Île Maurice</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Possibilité de rencontrer des problèmes à l'aéroport en cas de possession de produits de la vape</li><li>À vos risques et périls</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"MUS\">Plus d'info</a>",
   NLD: "<h3>Pays-Bas</h3> <ul><li>Les arômes sont interdits dans les e-liquides</li><li>Les puffs sont interdites</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"NLD\">Plus d'info</a>",
   PRT: "<h3>Portugal</h3> <ul><li>Les e-liquides sont taxés</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"PRT\">Plus d'info</a>",
   QAT: "<h3>Qatar</h3> <ul><li>Le vapotage est interdit</li><li>Nous vous déconseillons de vous rendre au Qatar avec votre matériel</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"QAT\">Plus d'info</a>",
   SGP: "<h3>Singapour</h3> <ul><li>Le vapotage est considéré comme un délit</li><li>Nous vous déconseillons <b>fortement</b> d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"SGP\">Plus d'info</a>",
-  LKA: "<h3>Sri Lanka</h3> <ul><li>Commerce des produits de la vape interdit</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"LKA\">Plus d'info</a>",
   THA: "<h3>Thaïlande</h3> <ul><li>La Thaïlande est l'un des pays les plus restrictifs au monde en matière de vapotage</li><li>Nous vous déconseillons <b>vivement</b> d'y apporter votre matériel</li><li>Certains touristes ont déjà été emprisonnés pour possession de produits de la vape</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"THA\">Plus d'info</a>",
   TUN: "<h3>Tunisie</h3> <ul><li>Très peu d'e-liquides autorisés</li><li>Nous vous conseillons d'apporter votre matériel avec vous</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"TUN\">Plus d'info</a>",
   USA: "<h3>USA</h3> <ul><li>La législation varie fortement d'un État à l'autre</li><li>Renseignez-vous auprès des autorités</li></ul> <a href=\"#\" class=\"more-info\" data-code=\"USA\">Plus d'info</a>"
 };
 
 
+
 var detailedInfo = {
   ARG: `
     <h2>Argentine : Législation sur le vapotage (2025)</h2>
+    <img src="images-pays/arg.jpg" alt="Argentine">
     <p>En Argentine, la législation interdit :</p>
     <ul>
       <li>La fabrication, l'importation, la vente et la distribution de cigarettes électroniques et de dispositifs de vapotage, conformément à la disposition <strong>ANMAT n° 3226/2011</strong>.</li>
@@ -442,6 +516,7 @@ var detailedInfo = {
   `,
   AUS: `
   <h2>Australie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/aus.jpg" alt="Australie">
   <p>Depuis le 1er juillet 2024, la vente de tous les produits de vapotage, y compris ceux sans nicotine, est restreinte aux pharmacies. Les produits doivent répondre à des normes strictes et ne sont disponibles que pour les adultes de 18 ans et plus, sous certaines conditions.</p>
   <ul>
     <li><strong>Importation :</strong> Depuis le 1er mars 2024, l'importation de dispositifs de vapotage, accessoires et substances nécessite une licence et un permis délivrés par l'Office of Drug Control. Les voyageurs peuvent apporter jusqu'à 2 dispositifs, 20 accessoires et 200 mL de liquide, uniquement pour usage personnel.</li>
@@ -455,6 +530,7 @@ var detailedInfo = {
 
 BEL: `
   <h2>Belgique : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/bel.jpg" alt="Belgique">
   <p>La Belgique a renforcé sa réglementation sur les produits de vapotage afin de protéger la santé publique, notamment celle des jeunes, et de réduire l'impact environnemental des dispositifs jetables.</p>
   <ul>
     <li><strong>Interdiction des cigarettes électroniques jetables :</strong> Depuis le 1er janvier 2025, la vente de puffs est interdite sur l'ensemble du territoire belge, faisant de la Belgique le premier pays de l'UE à adopter une telle mesure. Cette décision vise à limiter l'accès des jeunes à ces produits attractifs et à réduire les déchets électroniques.</li>
@@ -472,6 +548,7 @@ BEL: `
 
 BRA: `
   <h2>Brésil : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/bra.jpg" alt="Brésil">
   <p>Au Brésil, la législation interdit :</p>
   <ul>
     <li>La fabrication, l’importation, la vente et la distribution de cigarettes électroniques et de tous dispositifs de vapotage.</li>
@@ -491,6 +568,7 @@ BRA: `
 
   DNK: `
   <h2>Danemark : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/dnk.jpg" alt="Danemark">
   <p>Au Danemark, la vente et l'utilisation de cigarettes électroniques sont autorisées, mais strictement encadrées :</p>
   <ul>
     <li><strong>Âge minimum :</strong> La vente est réservée aux personnes de 18 ans et plus.</li>
@@ -514,6 +592,7 @@ BRA: `
 
 KHM: `
   <h2>Cambodge : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/khm.jpg" alt="Cambodge">
   <p>Depuis 2014, le Cambodge interdit :</p>
   <ul>
     <li>La vente, l'importation et l'utilisation de cigarettes électroniques, de shishas et de produits de tabac chauffé.</li>
@@ -532,6 +611,7 @@ KHM: `
 
 CAN: `
   <h2>Canada : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/can.jpg" alt="Canada">
   <p>Au Canada, la réglementation sur le vapotage est encadrée par la <strong>Loi sur le tabac et les produits de vapotage (LTPV)</strong>, avec des mesures renforcées en 2024 et 2025 pour limiter l'accès des jeunes et encadrer la commercialisation.</p>
   <ul>
     <li><strong>Restrictions sur les arômes :</strong> Seules les saveurs de tabac, menthe ou menthol sont autorisées. Les sucres, édulcorants et la plupart des arômes sont interdits, sauf ceux spécifiquement prévus pour ces saveurs.</li>
@@ -549,6 +629,7 @@ CAN: `
 
 CHL: `
   <h2>Chili : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/chl.jpg" alt="Chili">
   <p>Depuis le 4 janvier 2024, le Chili a promulgué la <strong>Ley N° 21.642</strong>, qui établit un cadre réglementaire strict pour les dispositifs de vapotage, qu'ils contiennent ou non de la nicotine. Cette loi assimile les systèmes électroniques de distribution de nicotine (SEAN) et sans nicotine (SESN) aux produits du tabac, les soumettant ainsi à des restrictions similaires.</p>
   <ul>
     <li><strong>Interdiction de vente aux mineurs :</strong> La vente, la distribution et la promotion de ces produits sont interdites aux personnes de moins de 18 ans, y compris les accessoires et les liquides de recharge.</li>
@@ -567,6 +648,7 @@ CHL: `
 
 CHN: `
   <h2>Chine : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/chn.jpg" alt="Chine">
   <p>En Chine continentale, les cigarettes électroniques sont soumises à une réglementation stricte, alignée sur celle des produits du tabac traditionnels.</p>
   <ul>
     <li><strong>Interdiction des arômes :</strong> Depuis le 1er octobre 2022, seuls les e-liquides au goût de tabac sont autorisés. Les arômes fruités, mentholés ou autres sont interdits.</li>
@@ -583,6 +665,7 @@ CHN: `
 
 COL: `
   <h2>Colombie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/col.jpg" alt="Colombie">
   <p>Depuis le 9 mai 2024, la <strong>Ley 2354</strong> est en vigueur en Colombie, établissant un cadre réglementaire strict pour les dispositifs de vapotage, qu'ils contiennent ou non de la nicotine. Cette loi étend les restrictions de la <strong>Ley Antitabaco (Ley 1335 de 2009)</strong> aux produits de vapotage, les assimilant aux produits du tabac traditionnels.</p>
   <ul>
     <li><strong>Interdiction de vente aux mineurs :</strong> La vente, la distribution et la promotion de ces produits sont interdites aux personnes de moins de 18 ans.</li>
@@ -601,6 +684,7 @@ COL: `
 
 FIN: `
   <h2>Finlande : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/fin.jpg" alt="Finlande">
   <p>La Finlande applique une réglementation stricte alignée sur la directive européenne (TPD), avec des restrictions nationales supplémentaires pour protéger la santé publique.</p>
   <ul>
     <li><strong>Âge minimum :</strong> Vente interdite aux moins de 18 ans.</li>
@@ -621,6 +705,7 @@ FIN: `
 
 GRC: `
   <h2>Grèce : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/grc.jpg" alt="Grèce">
   <p>La Grèce applique une réglementation stricte sur les produits de vapotage, en conformité avec la directive européenne sur les produits du tabac (TPD), avec des mesures nationales supplémentaires :</p>
   <ul>
     <li><strong>Âge minimum :</strong> La vente de produits de vapotage est interdite aux personnes de moins de 18 ans.</li>
@@ -640,6 +725,7 @@ GRC: `
 
 IND: `
   <h2>Inde : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/ind.jpg" alt="Inde">
   <p>Depuis le 18 septembre 2019, l'Inde interdit strictement tous les produits de vapotage, conformément à la loi <strong>Prohibition of Electronic Cigarettes Act, 2019</strong>.</p>
   <ul>
     <li><strong>Interdictions totales :</strong> La production, la fabrication, l'importation, l'exportation, le transport, la vente, la distribution, le stockage et la publicité des cigarettes électroniques et de leurs composants sont prohibés.</li>
@@ -657,6 +743,7 @@ IND: `
 
 IDN: `
   <h2>Indonésie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/idn.jpg" alt="Indonésie">
   <p>Depuis la mise en œuvre du <strong>Règlement gouvernemental n° 28 de 2024</strong>, l'Indonésie a renforcé sa réglementation sur les produits de vapotage afin de protéger la santé publique, notamment celle des jeunes.</p>
   <ul>
     <li><strong>Âge minimum :</strong> La vente de produits de vapotage est interdite aux personnes de moins de 21 ans. Des contrôles d'identité stricts sont requis pour l'achat en ligne et en magasin.</li>
@@ -682,6 +769,7 @@ IDN: `
 
 ITA: `
   <h2>Italie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/ita.jpg" alt="Italie">
   <p>En 2025, l'Italie a renforcé sa réglementation sur les produits de vapotage afin de mieux encadrer leur utilisation et de protéger la santé publique.</p>
   <ul>
     <li><strong>Âge minimum :</strong> La vente de produits de vapotage est interdite aux personnes de moins de 18 ans.</li>
@@ -708,6 +796,7 @@ ITA: `
 
 JPN: `
   <h2>Japon : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/jpn.jpg" alt="Japon">
   <p>Au Japon, la réglementation sur les produits de vapotage distingue strictement les produits contenant de la nicotine de ceux qui en sont dépourvus.</p>
   <ul>
     <li><strong>Vente de produits nicotinés :</strong> La vente de e-liquides contenant de la nicotine est interdite sur le territoire japonais, car la nicotine est classée comme substance pharmaceutique. Aucun produit de vapotage nicotiné n'a été approuvé à la vente à ce jour.</li>
@@ -727,6 +816,7 @@ JPN: `
 
 LAO: `
   <h2>Laos : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/lao.jpg" alt="Laos">
   <p>Le Laos applique une interdiction stricte des produits de vapotage, dans le cadre d'une politique de santé publique visant à réduire la consommation de nicotine, en particulier chez les jeunes.</p>
   <ul>
     <li><strong>Interdiction de vente et d'utilisation :</strong> La vente, l'importation, la distribution et l'utilisation de cigarettes électroniques sont interdites sur l'ensemble du territoire, conformément à la Loi sur le contrôle du tabac et à ses décrets d'application.</li>
@@ -745,6 +835,7 @@ LAO: `
 
 MYS: `
   <h2>Malaisie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/mys.jpg" alt="Malaisie">
   <p>La Malaisie a instauré une réglementation stricte sur les produits de vapotage à travers la <strong>Loi sur le contrôle des produits du tabac pour la santé publique (Acte 852)</strong>, entrée en vigueur le 1er octobre 2024. Cette loi vise à encadrer la vente, l'utilisation et la promotion des produits de vapotage pour protéger la santé publique, notamment celle des jeunes.</p>
   <ul>
     <li><strong>Enregistrement des produits :</strong> Tous les e-liquides, avec ou sans nicotine, doivent être enregistrés auprès du ministère de la Santé. Les fabricants doivent fournir des analyses de laboratoire et obtenir une certification de conformité aux normes locales.</li>
@@ -766,6 +857,7 @@ MYS: `
 
 MUS: `
   <h2>Île Maurice : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/mus.jpg" alt="Île Maurice">
   <p>Depuis l'entrée en vigueur des <strong>Public Health (Restrictions on Tobacco Products) Regulations 2022</strong>, l'Île Maurice applique une interdiction stricte des produits de vapotage :</p>
   <ul>
     <li><strong>Interdiction totale :</strong> La fabrication, l'importation, la distribution, la vente et la publicité des cigarettes électroniques, e-liquides (avec ou sans nicotine) et accessoires sont interdites. Cette mesure vise à protéger la santé publique, notamment celle des jeunes, en limitant l'accès à ces produits.</li>
@@ -783,6 +875,7 @@ MUS: `
 
 NLD: `
   <h2>Pays-Bas : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/nld.jpg" alt="Pays-Bas">
   <p>Les Pays-Bas ont mis en place une réglementation stricte sur les produits de vapotage afin de protéger la santé publique, notamment celle des jeunes :</p>
   <ul>
     <li><strong>Interdiction des arômes :</strong> Depuis le 1er janvier 2023, seuls les e-liquides au goût de tabac sont autorisés. Les arômes sucrés, fruités ou mentholés sont interdits, même pour les produits sans nicotine. Les stocks existants pouvaient être écoulés jusqu'au 1er janvier 2024. Cette mesure a conduit à une réduction significative de l'usage du vapotage, avec environ 22 % des utilisateurs ayant cessé complètement et 40 % ayant réduit leur consommation.</li>
@@ -803,6 +896,7 @@ NLD: `
 
 PRT: `
   <h2>Portugal : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/prt.jpg" alt="Portugal">
   <p>Le Portugal applique une réglementation stricte sur les produits de vapotage, alignée sur la directive européenne sur les produits du tabac (TPD), avec des mesures supplémentaires spécifiques au pays :</p>
   <ul>
     <li><strong>Âge minimum :</strong> La vente de produits de vapotage est interdite aux personnes de moins de 18 ans.</li>
@@ -824,6 +918,7 @@ PRT: `
 
 QAT: `
   <h2>Qatar : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/qat.jpg" alt="Qatar">
   <p>Le Qatar applique une interdiction stricte et complète des produits de vapotage :</p>
   <ul>
     <li><strong>Interdiction totale :</strong> Depuis 2014, la fabrication, l'importation, la vente, la distribution, l'affichage, la publicité et l'utilisation des cigarettes électroniques et des e-liquides sont illégales. Cette interdiction a été renforcée par la <strong>Loi n° 10 de 2016 sur le contrôle du tabac</strong>.</li>
@@ -842,6 +937,7 @@ QAT: `
 
 SGP: `
   <h2>Singapour : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/sgp.jpg" alt="Singapour">
   <p>Singapour applique une politique de tolérance zéro envers le vapotage, avec une interdiction totale couvrant tous les aspects liés aux cigarettes électroniques :</p>
   <ul>
     <li><strong>Interdiction complète :</strong> La <strong>Loi sur le contrôle de la publicité et de la vente du tabac (TCASA)</strong> interdit l'importation, la vente, la distribution, la possession, l'utilisation et l'achat de cigarettes électroniques, e-liquides (avec ou sans nicotine) et dispositifs de vapotage. Cette interdiction s'étend également aux produits de tabac chauffé et aux dispositifs similaires.</li>
@@ -862,6 +958,7 @@ SGP: `
 
 LKA: `
   <h2>Sri Lanka : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/lka.jpg" alt="Sri Lanka">
   <p>Le Sri Lanka applique une interdiction stricte des produits de vapotage, couvrant tous les aspects liés aux cigarettes électroniques :</p>
   <ul>
     <li><strong>Interdiction complète :</strong> La <strong>Prohibited Tobacco Products Regulations n°1 de 2016</strong> interdit la fabrication, l'importation, la vente et la distribution de cigarettes électroniques, y compris celles contenant du tabac. Bien que la loi mentionne spécifiquement les e-cigarettes contenant du tabac, cette disposition est appliquée à toutes les e-cigarettes.</li>
@@ -880,6 +977,7 @@ LKA: `
 
 THA: `
   <h2>Thaïlande : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/tha.jpg" alt="Thaïlande">
   <p>La Thaïlande applique une interdiction stricte et complète des produits de vapotage :</p>
   <ul>
     <li><strong>Interdiction totale :</strong> Depuis 2014, la fabrication, l'importation, la vente, la distribution, la possession et l'utilisation de cigarettes électroniques, de e-liquides (avec ou sans nicotine) et de dispositifs de vapotage sont illégales. Cette interdiction a été renforcée par la <strong>Loi sur le contrôle du tabac de 2014</strong> et le <strong>Code des douanes</strong>.</li>
@@ -900,6 +998,7 @@ THA: `
 
 TUN: `
   <h2>Tunisie : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/tun.jpg" alt="Tunisie">
   <p>En Tunisie, le vapotage est autorisé mais encadré par une réglementation spécifique :</p>
   <ul>
     <li><strong>Statut légal :</strong> Les cigarettes électroniques et les e-liquides sont légaux, mais leur vente et distribution sont soumises à des restrictions. La Régie Nationale des Tabacs et des Allumettes (RNTA) supervise la commercialisation de ces produits. </li>
@@ -919,6 +1018,7 @@ TUN: `
 
 USA: `
   <h2>États-Unis : Législation sur le vapotage (2025)</h2>
+  <img src="images-pays/usa.jpg" alt="USA">
   <p>La réglementation du vapotage aux États-Unis repose sur une combinaison de lois fédérales et de réglementations spécifiques à chaque État, visant à encadrer la vente, la distribution et l'utilisation des produits de vapotage.</p>
   <ul>
     <li><strong>Âge légal :</strong> La loi fédérale interdit la vente de produits du tabac, y compris les cigarettes électroniques, aux personnes de moins de 21 ans. Les détaillants doivent vérifier l'âge des acheteurs à l'aide d'une pièce d'identité avec photo pour toute personne de moins de 30 ans. </li>
