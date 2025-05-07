@@ -179,7 +179,7 @@ body.is-mobile #fullscreen-tooltip ul {
   line-height: 1.6;
 }
 
-body.is-mobile #close-tooltip {
+#close-tooltip {
   display: none; /* affiché seulement quand tooltip ouvert */
   position: fixed;
   top: 10px;
@@ -194,6 +194,7 @@ body.is-mobile #close-tooltip {
   opacity: 0.6;
   transition: opacity 0.3s, background 0.3s;
 }
+
 
 body.is-mobile #close-tooltip:hover,
 body.is-mobile #close-tooltip:focus,
@@ -217,6 +218,12 @@ body.is-mobile #close-tooltip:active {
   background: white !important;
   color: black;
 }
+
+body.tooltip-open .leaflet-control {
+  display: none !important;
+}
+
+
 
 </style>
 
@@ -1008,24 +1015,28 @@ USA: `
   </script>
 
 <script>
-  // Écoute les clics sur les liens "plus d'info"
-  document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('more-info')) {
-      e.preventDefault();
-      var code = e.target.getAttribute('data-code');
-      var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
-      document.getElementById('tooltip-content').innerHTML = content;
-      document.getElementById('fullscreen-tooltip').style.display = 'block';
-      document.getElementById('close-tooltip').style.display = 'block';  // → affiche le bouton Fermer
-    }
-  });
+// Écoute les clics sur les liens "plus d'info"
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('more-info')) {
+    e.preventDefault();
+    var code = e.target.getAttribute('data-code');
+    var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
+    document.getElementById('tooltip-content').innerHTML = content;
+    document.getElementById('fullscreen-tooltip').style.display = 'block';
+    document.getElementById('close-tooltip').style.display = 'block'; // ← on montre le bouton fermer
+    document.body.classList.add('tooltip-open'); // ← Masque les contrôles Leaflet
+  }
+});
 
-  // Bouton pour fermer le panneau
-  document.getElementById('close-tooltip').addEventListener('click', function() {
-    document.getElementById('fullscreen-tooltip').style.display = 'none';
-    document.getElementById('close-tooltip').style.display = 'none';  // → cache le bouton Fermer
-  });
+// Bouton pour fermer le panneau
+document.getElementById('close-tooltip').addEventListener('click', function() {
+  document.getElementById('fullscreen-tooltip').style.display = 'none';
+  document.getElementById('close-tooltip').style.display = 'none'; // ← on cache aussi le bouton fermer
+  document.body.classList.remove('tooltip-open'); // ← Réaffiche les contrôles Leaflet
+});
+
 </script>
+
 
   
   </body>
