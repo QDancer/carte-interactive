@@ -1021,12 +1021,18 @@ document.addEventListener('click', function(e) {
     e.preventDefault();
     var code = e.target.getAttribute('data-code');
     var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
+
+    if (map.isFullscreen()) {
+      map.toggleFullscreen(); // ← quitte le plein écran Leaflet si actif
+    }
+
     document.getElementById('tooltip-content').innerHTML = content;
     document.getElementById('fullscreen-tooltip').style.display = 'block';
     document.getElementById('close-tooltip').style.display = 'block'; // ← on montre le bouton fermer
     document.body.classList.add('tooltip-open'); // ← Masque les contrôles Leaflet
   }
 });
+
 
 // Bouton pour fermer le panneau
 document.getElementById('close-tooltip').addEventListener('click', function() {
