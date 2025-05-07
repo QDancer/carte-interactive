@@ -165,7 +165,7 @@
   font-size: 1.2em;
   overflow-y: auto;
   box-sizing: border-box;
-  position: relative; /* conserve le contenu défilable */
+  position: relative;
 }
 
 body.is-mobile #fullscreen-tooltip h2 {
@@ -180,16 +180,17 @@ body.is-mobile #fullscreen-tooltip ul {
 }
 
 body.is-mobile #close-tooltip {
+  display: none; /* affiché seulement quand tooltip ouvert */
   position: fixed;
   top: 10px;
   right: 10px;
   font-size: 1.5em;
   padding: 8px 12px;
   z-index: 3000;
-  background: rgba(255, 255, 255, 0.7); /* semi-transparent blanc */
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid gray;
   border-radius: 4px;
-  backdrop-filter: blur(4px); /* effet flou derrière */
+  backdrop-filter: blur(4px);
   opacity: 0.6;
   transition: opacity 0.3s, background 0.3s;
 }
@@ -200,6 +201,7 @@ body.is-mobile #close-tooltip:active {
   opacity: 1;
   background: rgba(255, 255, 255, 0.9);
 }
+
 
 
 
@@ -222,32 +224,44 @@ body.is-mobile #close-tooltip:active {
 <body>
   <div id="map"></div>
 
-  <div id="fullscreen-tooltip" style="
-  display: none;
-  position: fixed;
-  top: 5%;
-  left: 5%;
-  width: 90%;
-  height: 90%;
-  background: white;
-  border: 3px solid gray;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  z-index: 2000;
-  overflow: auto;
-  padding: 20px;
+ <!-- Bouton Fermer placé en-dehors -->
+<button id="close-tooltip" style="
+display: none;
+position: fixed;
+top: 10px;
+right: 10px;
+padding: 8px 12px;
+font-size: 1.5em;
+z-index: 3000;
+background: rgba(255, 255, 255, 0.7);
+border: 1px solid gray;
+border-radius: 4px;
+backdrop-filter: blur(4px);
+opacity: 0.6;
+transition: opacity 0.3s, background 0.3s;
+">Fermer</button>
+
+<!-- Tooltip fullscreen -->
+<div id="fullscreen-tooltip" style="
+display: none;
+position: fixed;
+top: 5%;
+left: 5%;
+width: 90%;
+height: 90%;
+background: white;
+border: 3px solid gray;
+border-radius: 10px;
+box-shadow: 0 0 20px rgba(0,0,0,0.5);
+z-index: 2000;
+overflow: auto;
+padding: 20px;
 ">
-  <button id="close-tooltip" style="
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    font-size: 1.2em;
-  ">Fermer</button>
-  <div id="tooltip-content">
-    <!-- Contenu dynamique -->
-  </div>
+<div id="tooltip-content">
+  <!-- Contenu dynamique -->
 </div>
+</div>
+
 
 
   <!-- Leaflet JS -->
@@ -996,21 +1010,23 @@ USA: `
 <script>
   // Écoute les clics sur les liens "plus d'info"
   document.addEventListener('click', function(e) {
-  if (e.target && e.target.classList.contains('more-info')) {
-    e.preventDefault();
-    var code = e.target.getAttribute('data-code');
-    var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
-    document.getElementById('tooltip-content').innerHTML = content;
-    document.getElementById('fullscreen-tooltip').style.display = 'block';
-  }
-});
+    if (e.target && e.target.classList.contains('more-info')) {
+      e.preventDefault();
+      var code = e.target.getAttribute('data-code');
+      var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
+      document.getElementById('tooltip-content').innerHTML = content;
+      document.getElementById('fullscreen-tooltip').style.display = 'block';
+      document.getElementById('close-tooltip').style.display = 'block';  // → affiche le bouton Fermer
+    }
+  });
 
-  
   // Bouton pour fermer le panneau
   document.getElementById('close-tooltip').addEventListener('click', function() {
     document.getElementById('fullscreen-tooltip').style.display = 'none';
+    document.getElementById('close-tooltip').style.display = 'none';  // → cache le bouton Fermer
   });
-  </script>
+</script>
+
   
   </body>
   </html>
