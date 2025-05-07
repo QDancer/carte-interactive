@@ -165,6 +165,7 @@
   font-size: 1.2em;
   overflow-y: auto;
   box-sizing: border-box;
+  position: relative; /* conserve le contenu défilable */
 }
 
 body.is-mobile #fullscreen-tooltip h2 {
@@ -179,11 +180,27 @@ body.is-mobile #fullscreen-tooltip ul {
 }
 
 body.is-mobile #close-tooltip {
-  font-size: 1.5em;
-  padding: 8px 12px;
+  position: fixed;
   top: 10px;
   right: 10px;
+  font-size: 1.5em;
+  padding: 8px 12px;
+  z-index: 3000;
+  background: rgba(255, 255, 255, 0.7); /* semi-transparent blanc */
+  border: 1px solid gray;
+  border-radius: 4px;
+  backdrop-filter: blur(4px); /* effet flou derrière */
+  opacity: 0.6;
+  transition: opacity 0.3s, background 0.3s;
 }
+
+body.is-mobile #close-tooltip:hover,
+body.is-mobile #close-tooltip:focus,
+body.is-mobile #close-tooltip:active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.9);
+}
+
 
 
   /* → Neutralise le fond noir imposé par className:'custom-tooltip' */
