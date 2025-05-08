@@ -1,0 +1,128 @@
+/* Styles généraux */
+html, body { height: 100%; margin: 0; padding: 0; }
+#map { height: 100%; }
+
+/* Tooltip personnalisé */
+.custom-tooltip {
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 1.2em;
+}
+.custom-tooltip::before { border-top-color: rgba(0, 0, 0, 0.8); }
+
+/* Légende */
+.info.legend {
+  background: white;
+  padding: 6px;
+  line-height: 1.4;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+}
+
+/* Bouton de la légende */
+#legend-toggle {
+  background-color: white;
+  border: 1px solid gray;
+  padding: 4px 8px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  border-radius: 4px;
+}
+
+/* Contenu de la légende */
+#legend-content {
+  margin-top: 4px;
+}
+
+/* Icônes des marqueurs */
+.danger-marker-icon, .attention-marker-icon {
+  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white);
+}
+
+/* Logo de l'entreprise */
+.company-logo {
+  width: 120px;
+  padding: 5px;
+  background: rgba(200, 200, 200, 0.5);
+  border: 3px solid grey;
+  border-radius: 6px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+
+/* Icônes des drapeaux */
+.flag-icon {
+  vertical-align: middle;
+  margin-right: 6px;
+  width: 24px;
+  height: auto;
+}
+
+/* Adaptations pour mobile */
+body.is-mobile .info.legend {
+  font-size: 1.1em;
+  padding: 10px;
+  line-height: 1.6;
+}
+
+body.is-mobile #fullscreen-tooltip {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  padding: 10px;
+  font-size: 1.2em;
+  overflow-y: auto;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Bouton fermer */
+#close-tooltip {
+  display: none;
+  padding: 8px 12px;
+  font-size: 1.5em;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid gray;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  opacity: 0.6;
+  transition: opacity 0.3s, background 0.3s;
+}
+
+#close-tooltip:hover,
+#close-tooltip:focus,
+#close-tooltip:active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Adaptations pour desktop */
+
+#fullscreen-tooltip {
+    display: none;
+    position: fixed;
+    background: white;
+    border: 3px solid gray;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    overflow: auto;
+    padding: 20px;
+    top: 5%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+  }
+  
+  @media (min-width: 768px) {
+    #fullscreen-tooltip {
+      width: 60%;
+      height: 70%;
+      top: 15%;
+      left: 20%;
+    }
+  }
