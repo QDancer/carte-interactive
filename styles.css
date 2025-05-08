@@ -67,6 +67,8 @@ body.is-mobile .info.legend {
 }
 
 body.is-mobile #fullscreen-tooltip {
+  display: block;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -76,7 +78,7 @@ body.is-mobile #fullscreen-tooltip {
   font-size: 1.2em;
   overflow-y: auto;
   box-sizing: border-box;
-  position: relative;
+  z-index: 2000;
 }
 
 /* Bouton fermer */
