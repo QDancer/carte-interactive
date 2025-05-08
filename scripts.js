@@ -1,6 +1,11 @@
 // Détecter mobile
 var isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent);
-if (isMobile) document.body.classList.add('is-mobile');
+if (isMobile) {
+  document.body.classList.add('is-mobile');
+  console.log('Mode mobile activé');
+} else {
+  console.log('Mode desktop activé');
+}
 
 var countryIcons = {
     CAN:[45.4215,-75.6972], CHN:[39.9042,116.4074], KOR:[37.5665,126.9780],
@@ -744,27 +749,28 @@ map.addControl(new LogoControl());
 
 // Gestion des popups plein écran
 document.addEventListener('click', function (e) {
-    if (e.target && e.target.classList.contains('more-info')) {
-      e.preventDefault();
-      var code = e.target.getAttribute('data-code');
-      var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
-  
-      if (map.isFullscreen()) map.toggleFullscreen();
-  
-      var tooltipContent = document.getElementById('tooltip-content');
-      var fullscreenTooltip = document.getElementById('fullscreen-tooltip');
-      var closeTooltip = document.getElementById('close-tooltip');
-  
-      if (tooltipContent && fullscreenTooltip && closeTooltip) {
-        tooltipContent.innerHTML = content;
-        fullscreenTooltip.style.display = 'block';
-        closeTooltip.style.display = 'block';
-        document.body.classList.add('tooltip-open');
-      } else {
-        console.error('Les éléments DOM nécessaires pour les tooltips fullscreen sont introuvables.');
-      }
+  if (e.target && e.target.classList.contains('more-info')) {
+    e.preventDefault();
+    var code = e.target.getAttribute('data-code');
+    var content = detailedInfo[code] || "<h2>Informations non disponibles</h2><p>Désolé, nous n'avons pas encore de détails pour ce pays.</p>";
+
+    if (map.isFullscreen()) map.toggleFullscreen();
+
+    var tooltipContent = document.getElementById('tooltip-content');
+    var fullscreenTooltip = document.getElementById('fullscreen-tooltip');
+    var closeTooltip = document.getElementById('close-tooltip');
+
+    if (tooltipContent && fullscreenTooltip && closeTooltip) {
+      tooltipContent.innerHTML = content;
+      fullscreenTooltip.style.display = 'block';
+      closeTooltip.style.display = 'block';
+      document.body.classList.add('tooltip-open');
+      console.log('Tooltip affiché');
+    } else {
+      console.error('Les éléments DOM nécessaires pour les tooltips fullscreen sont introuvables.');
     }
-  });
+  }
+});
   
   var closeTooltip = document.getElementById('close-tooltip');
   if (closeTooltip) {
